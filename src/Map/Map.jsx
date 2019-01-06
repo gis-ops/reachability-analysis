@@ -3,7 +3,9 @@ import { connect } from "react-redux";
 import L from "leaflet";
 import ExtraMarkers from "./extraMarkers";
 import {
-  updatePosition
+  fetchHereReverseGeocode,
+  updateTextInput,
+  updateSelectedAddress
 } from "../actions/actions";
 
 const style = {
@@ -47,18 +49,20 @@ class Map extends React.Component {
     const { isochronesMarkers } = this.props;
     let cnt = 0;
 
-    this.clearAllLayers();
+    setTimeout(() => {
+      this.clearAllLayers();
 
-    for (let isochrones of isochronesMarkers) {
-      if (isochrones.geocodeResults.length > 0) {
-        for (let location of isochrones.geocodeResults) {
-          if (location.selected) {
-            this.addIsochronesMarker(location, cnt);
+      for (let isochrones of isochronesMarkers) {
+        if (isochrones.geocodeResults.length > 0) {
+          for (let location of isochrones.geocodeResults) {
+            if (location.selected) {
+              this.addIsochronesMarker(location, cnt);
+            }
           }
         }
+        cnt += 1;
       }
-      cnt += 1;
-    }
+    }, 200);
   }
 
   clearAllLayers() {
@@ -68,15 +72,14 @@ class Map extends React.Component {
   }
 
   updatePosition(obj) {
-    console.log(obj);
-    
+    console.log(this.props, obj);
+
     this.props.dispatch(
-      updatePosition({
+      fetchHereReverseGeocode({
         isoIndex: obj.isoIndex,
-        latLng: obj.latLng
+        ...obj.latLng
       })
     );
-
   }
   addIsochronesMarker(location, cnt) {
     console.log(location, cnt);

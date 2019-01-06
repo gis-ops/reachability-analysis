@@ -2,6 +2,7 @@ import { combineReducers } from "redux";
 import {
   REQUEST_GEOCODE_RESULTS,
   RECEIVE_GEOCODE_RESULTS,
+  RECEIVE_REVERSE_GEOCODE_RESULTS,
   ADD_ISOCHRONESCONTROL,
   UPDATE_TEXTINPUT,
   UPDATE_SELECTED_ADDRESS
@@ -36,6 +37,16 @@ const isochronesControls = (state = initialIsochronesControlsState, action) => {
         )
       };
     case RECEIVE_GEOCODE_RESULTS:
+      return {
+        ...state,
+        controls: state.controls.map((control, i) =>
+          i === action.controlIndex
+            ? { ...control, isFetching: false, geocodeResults: action.results }
+            : control
+        )
+      };
+    case RECEIVE_REVERSE_GEOCODE_RESULTS:
+      console.info('here', action)
       return {
         ...state,
         controls: state.controls.map((control, i) =>
