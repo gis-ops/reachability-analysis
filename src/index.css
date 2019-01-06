@@ -1,0 +1,14 @@
+@import "~semantic-ui-css/semantic.css";
+@import "~leaflet/dist/leaflet.css";
+@import "~tachyons/css/tachyons.css";
+@import "~leaflet-extra-markers/dist/css/leaflet.extra-markers.min.css";
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.extra-marker .fa-number:before {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: bold;
+}
