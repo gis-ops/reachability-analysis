@@ -41,7 +41,7 @@ const isochronesControls = (state = initialIsochronesControlsState, action) => {
         ...state,
         controls: state.controls.map((control, i) =>
           i === action.controlIndex
-            ? { ...control, isFetching: false, geocodeResults: action.results }
+            ? { ...control, isFetching: false, geocodeResults: action.results, reverse: action.reverse }
             : control
         )
       };
@@ -51,7 +51,7 @@ const isochronesControls = (state = initialIsochronesControlsState, action) => {
         ...state,
         controls: state.controls.map((control, i) =>
           i === action.controlIndex
-            ? { ...control, isFetching: false, geocodeResults: action.results }
+            ? { ...control, isFetching: false, geocodeResults: action.results, reverse: action.reverse }
             : control
         )
       };

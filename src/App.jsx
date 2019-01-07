@@ -7,7 +7,9 @@ const controlsStyle = {
   position: "absolute",
   width: "400px",
   top: "0",
-  left: "10px"
+  left: "10px",
+  maxHeight: "calc(100vh - 2vw)",
+  overflow: "auto"
 };
 
 class App extends React.Component {

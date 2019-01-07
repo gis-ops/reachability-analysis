@@ -3,9 +3,7 @@ import { connect } from "react-redux";
 import L from "leaflet";
 import ExtraMarkers from "./extraMarkers";
 import {
-  fetchHereReverseGeocode,
-  updateTextInput,
-  updateSelectedAddress
+  fetchHereReverseGeocode
 } from "../actions/actions";
 
 const style = {
@@ -34,10 +32,8 @@ const mapParams = {
 
 class Map extends React.Component {
   componentDidMount() {
-    // create map
     this.map = L.map("map", mapParams);
 
-    //add zoom control with your options
     L.control
       .zoom({
         position: "topright"
@@ -47,28 +43,43 @@ class Map extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { isochronesMarkers } = this.props;
+
     let cnt = 0;
 
-    setTimeout(() => {
-      this.clearAllLayers();
+    for (let isochrones of isochronesMarkers) {
+      // add marker
+      if (isochrones.geocodeResults.length > 0) {
+        for (let location of isochrones.geocodeResults) {
+          if (location.selected) {
+            // if a address is geocoded normally, clear layer beforehand
 
-      for (let isochrones of isochronesMarkers) {
-        if (isochrones.geocodeResults.length > 0) {
-          for (let location of isochrones.geocodeResults) {
-            if (location.selected) {
+            if (!isochrones.reverse) this.clearLayerByIndex(cnt);
+
+            if (this.isMarkerPresent(cnt)) {
+              this.addIsochronesMarker(location, cnt, true);
+            } else {
               this.addIsochronesMarker(location, cnt);
             }
           }
         }
-        cnt += 1;
       }
-    }, 200);
+
+      cnt += 1;
+    }
   }
 
-  clearAllLayers() {
+  clearLayerByIndex(idx) {
     markersLayer.eachLayer(function(layer) {
-      markersLayer.removeLayer(layer);
+      if (layer.options.index === idx) markersLayer.removeLayer(layer);
     });
+  }
+
+  isMarkerPresent(idx) {
+    let isPresent = false;
+    markersLayer.eachLayer(function(layer) {
+      if (layer.options.index === idx) isPresent = true;
+    });
+    return isPresent;
   }
 
   updatePosition(obj) {
@@ -81,34 +92,45 @@ class Map extends React.Component {
       })
     );
   }
-  addIsochronesMarker(location, cnt) {
-    console.log(location, cnt);
-    // Creates a red marker with the coffee icon
-    const isochronesMarker = ExtraMarkers.icon({
-      icon: "fa-number",
-      markerColor: "blue",
-      shape: "star",
-      prefix: "fa",
-      number: (cnt + 1).toString()
-    });
+  addIsochronesMarker(location, idx, isPresent = false) {
+    console.log(location, idx);
 
-    const that = this;
-
-    L.marker(location.DisplayPosition, {
-      icon: isochronesMarker,
-      draggable: true,
-      index: cnt
-    })
-      .addTo(markersLayer)
-      .bindTooltip(location.title + ", " + location.description, {
-        permanent: false
-      })
-      .on("dragend", function(e) {
-        that.updatePosition({
-          latLng: e.target.getLatLng(),
-          isoIndex: e.target.options.index
-        });
+    if (!isPresent) {
+      const isochronesMarker = ExtraMarkers.icon({
+        icon: "fa-number",
+        markerColor: "blue",
+        shape: "star",
+        prefix: "fa",
+        number: (idx + 1).toString()
       });
+
+      const that = this;
+
+      L.marker(location.DisplayPosition, {
+        icon: isochronesMarker,
+        draggable: true,
+        index: idx
+      })
+        .addTo(markersLayer)
+        .bindTooltip(location.title + ", " + location.description, {
+          permanent: false
+        })
+        .on("dragend", function(e) {
+          that.updatePosition({
+            latLng: e.target.getLatLng(),
+            isoIndex: e.target.options.index
+          });
+        });
+    } else {
+      markersLayer.eachLayer(function(layer) {
+        if (layer.options.index === idx) {
+          layer.unbindTooltip();
+          layer.bindTooltip(location.title + ", " + location.description, {
+            permanent: false
+          });
+        }
+      });
+    }
   }
 
   render() {

@@ -9,7 +9,7 @@ export const ADD_ISOCHRONESCONTROL = "ADD_ISOCHRONESCONTROL";
 export const UPDATE_TEXTINPUT = "UPDATE_TEXTINPUT";
 export const UPDATE_SELECTED_ADDRESS = "UPDATE_SELECTED_ADDRESS";
 
-const parseResponse = json => {
+const parseResponse = (json, latLng) => {
   if (json.Response && json.Response.View.length > 0) {
     let processedResults = [];
 
@@ -21,8 +21,8 @@ const parseResponse = json => {
           title: address.Location.Address.Label,
           description: address.Location.Address.PostalCode,
           DisplayPosition: {
-            lat: address.Location.DisplayPosition.Latitude,
-            lng: address.Location.DisplayPosition.Longitude
+            lat: latLng ? latLng.lat : address.Location.DisplayPosition.Latitude,
+            lng: latLng ? latLng.lng : address.Location.DisplayPosition.Longitude
           },
           selected: false
         });
@@ -40,19 +40,32 @@ export const receiveGeocodeResults = (controlIndex, json) => ({
   type: RECEIVE_GEOCODE_RESULTS,
   controlIndex,
   results: parseResponse(json),
-  receivedAt: Date.now()
+  receivedAt: Date.now(),
+  reverse: false
 });
 
-const receiveReverseGeocodeResults = (controlIndex, json) => ({
-    type: RECEIVE_REVERSE_GEOCODE_RESULTS,
-    controlIndex,
-    results: parseResponse(json),
-    receivedAt: Date.now()
+const receiveReverseGeocodeResults = (controlIndex, json, latLng, preFetch = false) => ({
+  type: RECEIVE_REVERSE_GEOCODE_RESULTS,
+  controlIndex,
+  results: preFetch
+    ? [
+        {
+          title: [json.lat, json.lng].join(","),
+          description: "",
+          DisplayPosition: {
+            lat: json.lat,
+            lng: json.lng
+          },
+          selected: true
+        }
+      ]
+    : parseResponse(json, latLng),
+  receivedAt: Date.now(),
+  reverse: true
 });
 
 const setReverseGeocodeResult = (controlIndex, action) => dispatch => {
-  
-  console.log(action)
+  console.log(action);
 
   dispatch(
     updateTextInput({
@@ -69,9 +82,7 @@ const setReverseGeocodeResult = (controlIndex, action) => dispatch => {
   );
 };
 
-
 export const fetchHereGeocode = payload => dispatch => {
-  console.info(payload);
   dispatch(requestGeocodeResults(payload.controlIndex));
 
   let url = new URL("https://geocoder.api.here.com/6.2/geocode.json"),
@@ -89,7 +100,15 @@ export const fetchHereGeocode = payload => dispatch => {
 };
 
 export const fetchHereReverseGeocode = payload => dispatch => {
-  console.log(payload);
+  // fake response
+  dispatch(
+    receiveReverseGeocodeResults(
+      payload.isoIndex,
+      { lat: payload.lat, lng: payload.lng },
+      true
+    )
+  );
+
   dispatch(requestGeocodeResults(payload.isoIndex));
 
   const radius = 250;
@@ -110,9 +129,11 @@ export const fetchHereReverseGeocode = payload => dispatch => {
   return fetch(url)
     .then(response => response.json())
     .then(json =>
-      dispatch(receiveReverseGeocodeResults(payload.isoIndex, json))
+      dispatch(receiveReverseGeocodeResults(payload.isoIndex, json, {lat: payload.lat, lng: payload.lng}))
     )
-    .then(action => dispatch(setReverseGeocodeResult(payload.isoIndex, action)));
+    .then(action =>
+      dispatch(setReverseGeocodeResult(payload.isoIndex, action))
+    );
 };
 
 export const requestGeocodeResults = controlIndex => ({
