@@ -8,6 +8,7 @@ export const SET_USERTEXTINPUT = "SET_USERTEXTINPUT";
 export const ADD_ISOCHRONESCONTROL = "ADD_ISOCHRONESCONTROL";
 export const UPDATE_TEXTINPUT = "UPDATE_TEXTINPUT";
 export const UPDATE_SELECTED_ADDRESS = "UPDATE_SELECTED_ADDRESS";
+export const REMOVE_ISOCHRONES_CONTROL = "REMOVE_ISOCHRONES_CONTROL";
 
 const parseResponse = (json, latLng) => {
   if (json.Response && json.Response.View.length > 0) {
@@ -21,8 +22,12 @@ const parseResponse = (json, latLng) => {
           title: address.Location.Address.Label,
           description: address.Location.Address.PostalCode,
           DisplayPosition: {
-            lat: latLng ? latLng.lat : address.Location.DisplayPosition.Latitude,
-            lng: latLng ? latLng.lng : address.Location.DisplayPosition.Longitude
+            lat: latLng
+              ? latLng.lat
+              : address.Location.DisplayPosition.Latitude,
+            lng: latLng
+              ? latLng.lng
+              : address.Location.DisplayPosition.Longitude
           },
           selected: false
         });
@@ -44,7 +49,12 @@ export const receiveGeocodeResults = (controlIndex, json) => ({
   reverse: false
 });
 
-const receiveReverseGeocodeResults = (controlIndex, json, latLng, preFetch = false) => ({
+const receiveReverseGeocodeResults = (
+  controlIndex,
+  json,
+  latLng,
+  preFetch = false
+) => ({
   type: RECEIVE_REVERSE_GEOCODE_RESULTS,
   controlIndex,
   results: preFetch
@@ -129,7 +139,12 @@ export const fetchHereReverseGeocode = payload => dispatch => {
   return fetch(url)
     .then(response => response.json())
     .then(json =>
-      dispatch(receiveReverseGeocodeResults(payload.isoIndex, json, {lat: payload.lat, lng: payload.lng}))
+      dispatch(
+        receiveReverseGeocodeResults(payload.isoIndex, json, {
+          lat: payload.lat,
+          lng: payload.lng
+        })
+      )
     )
     .then(action =>
       dispatch(setReverseGeocodeResult(payload.isoIndex, action))
@@ -144,6 +159,11 @@ export const requestGeocodeResults = controlIndex => ({
 export const addIsochronesControl = () => ({
   type: ADD_ISOCHRONESCONTROL,
   payload: { userInput: "", geocodeResults: [], isFetching: false }
+});
+
+export const removeIsochronesControl = controlIndex => ({
+  type: REMOVE_ISOCHRONES_CONTROL,
+  payload: controlIndex
 });
 
 export const updateTextInput = textInputIndex => ({

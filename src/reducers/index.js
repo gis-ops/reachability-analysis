@@ -4,6 +4,7 @@ import {
   RECEIVE_GEOCODE_RESULTS,
   RECEIVE_REVERSE_GEOCODE_RESULTS,
   ADD_ISOCHRONESCONTROL,
+  REMOVE_ISOCHRONES_CONTROL,
   UPDATE_TEXTINPUT,
   UPDATE_SELECTED_ADDRESS
 } from "../actions/actions";
@@ -19,6 +20,11 @@ const isochronesControls = (state = initialIsochronesControlsState, action) => {
       return {
         ...state,
         controls: [...state.controls, action.payload]
+      };
+    case REMOVE_ISOCHRONES_CONTROL:
+      return {
+        ...state,
+        controls: state.controls.filter((item, i) => i !== action.payload.controlIndex)
       };
     case UPDATE_TEXTINPUT:
       return {
@@ -41,17 +47,27 @@ const isochronesControls = (state = initialIsochronesControlsState, action) => {
         ...state,
         controls: state.controls.map((control, i) =>
           i === action.controlIndex
-            ? { ...control, isFetching: false, geocodeResults: action.results, reverse: action.reverse }
+            ? {
+                ...control,
+                isFetching: false,
+                geocodeResults: action.results,
+                reverse: action.reverse
+              }
             : control
         )
       };
     case RECEIVE_REVERSE_GEOCODE_RESULTS:
-      console.info('here', action)
+      console.info("here", action);
       return {
         ...state,
         controls: state.controls.map((control, i) =>
           i === action.controlIndex
-            ? { ...control, isFetching: false, geocodeResults: action.results, reverse: action.reverse }
+            ? {
+                ...control,
+                isFetching: false,
+                geocodeResults: action.results,
+                reverse: action.reverse
+              }
             : control
         )
       };
@@ -77,57 +93,8 @@ const isochronesControls = (state = initialIsochronesControlsState, action) => {
   }
 };
 
-// const userTextInput = (state = "", action) => {
-//   console.log(state);
-//   switch (action.type) {
-//     case SET_USERTEXTINPUT:
-//       return action.textInput;
-//     default:
-//       return state;
-//   }
-// };
-
-// const geocodeResults = (
-//   state = {
-//     isFetching: false,
-//     items: []
-//   },
-//   action
-// ) => {
-//   switch (action.type) {
-//     // case REQUEST_GEOCODE_RESULTS:
-//     //   return {
-//     //     ...state,
-//     //     isFetching: true
-//     //   };
-//     case RECEIVE_GEOCODE_RESULTS:
-//       return {
-//         ...state,
-//         isFetching: false,
-//         items: action.results,
-//         lastUpdated: action.receivedAt
-//       };
-//     default:
-//       return state;
-//   }
-// };
-
-// const geocodeResultsByUserTextInput = (state = {}, action) => {
-//   switch (action.type) {
-//     case RECEIVE_GEOCODE_RESULTS:
-//     case REQUEST_GEOCODE_RESULTS:
-//       return {
-//         ...state,
-//         lastResults: geocodeResults(state[action.textInput], action)
-//       };
-//     default:
-//       return state;
-//   }
-// };
 
 const rootReducer = combineReducers({
-  //geocodeResultsByUserTextInput,
-  //userTextInput,
   isochronesControls
 });
 

@@ -9,12 +9,14 @@ import {
   Container,
   Popup,
   Accordion,
-  Divider
+  Divider,
+  Button
 } from "semantic-ui-react";
 import {
   updateTextInput,
   fetchHereGeocode,
-  updateSelectedAddress
+  updateSelectedAddress,
+  removeIsochronesControl
 } from "../actions/actions";
 import InlineEdit from "react-edit-inline2";
 
@@ -101,9 +103,30 @@ class SearchControl extends React.Component {
     this.setState({ ...data });
   }
 
+  fetchIsochrones() {
+
+    console.log('fetching...')
+
+  }
   render() {
-    const { isFetching, userTextInput, results } = this.props;
-    console.log(userTextInput);
+    const { isFetching, userTextInput, results, controlIndex } = this.props;
+
+    const handleRemoveControl = () => {
+      console.log(controlIndex);
+      if (controlIndex > 0) {
+        this.props.dispatch(
+          removeIsochronesControl({ controlIndex: controlIndex })
+        );
+      }
+    };
+
+    const isResultSelected = () => {
+      for (let result of results) {
+        if (result.selected) return false;
+      }
+
+      return true;
+    };
     return (
       <Segment>
         <Container className="mb2" textAlign="left">
@@ -125,50 +148,67 @@ class SearchControl extends React.Component {
             }}
           />
           <Popup
-            trigger={<Icon name="close" style={{ float: "right" }} />}
+            trigger={
+              <Icon
+                name="close"
+                style={{ float: "right" }}
+                onClick={handleRemoveControl}
+              />
+            }
             content="Remove"
             size="mini"
           />
         </Container>
         <Divider fitted />
-        <Search
-          onSearchChange={this.handleSearchChange}
-          onResultSelect={this.handleResultSelect}
-          type="text"
-          fluid
-          input={{ fluid: true }}
-          loading={isFetching}
-          className="mt3"
-          results={results}
-          value={userTextInput}
-          placeholder="Find Address ..."
-          {...this.props}
-        />
-
+        <div className="flex justify-between items-center mt3">
+          <Search
+            onSearchChange={this.handleSearchChange}
+            onResultSelect={this.handleResultSelect}
+            type="text"
+            fluid
+            input={{ fluid: true }}
+            loading={isFetching}
+            className="flex-grow-1 mr2"
+            results={results}
+            value={userTextInput}
+            placeholder="Find Address ..."
+            {...this.props}
+          />
+          <Popup
+            trigger={
+              <Button
+                circular
+                disabled={isResultSelected()}
+                color="purple"
+                icon="globe"
+                onClick={this.fetchIsochrones}
+              />
+            }
+            content="Compute isochrones"
+            size="mini"
+          />
+        </div>
         <Container className="mt2">
-
-        <Accordion>
-          <Accordion.Title
-            active={this.state.activeIndex === 0}
-            index={0}
-            onClick={this.handleClick}
-          >
-            <Icon name="dropdown" />
-            Settings
-          </Accordion.Title>
-          <Accordion.Content active={this.state.activeIndex === 0}>
-            <Settings />
-          </Accordion.Content>
-        </Accordion>
-      </Container>
+          <Accordion>
+            <Accordion.Title
+              active={this.state.activeIndex === 0}
+              index={0}
+              onClick={this.handleClick}
+            >
+              <Icon name="dropdown" />
+              Settings
+            </Accordion.Title>
+            <Accordion.Content active={this.state.activeIndex === 0}>
+              <Settings />
+            </Accordion.Content>
+          </Accordion>
+        </Container>
       </Segment>
     );
   }
 }
 
 const mapStateToProps = (state, ownProps) => {
-  console.log(state, ownProps);
-
   const userTextInput =
     state.isochronesControls.controls[ownProps.controlIndex].userInput;
   const results =

@@ -39,6 +39,18 @@ class Map extends React.Component {
         position: "topright"
       })
       .addTo(this.map);
+
+              const brand = L.control({
+          position: "bottomright"
+        });
+        brand.onAdd = function(map) {
+          var div = L.DomUtil.create("div", "brand");
+          div.innerHTML = '<a href="https://gis.ops.com" target="_blank"><div class="gis-ops-logo"></div></a>';
+          return div;
+        };
+          this.map.addControl(brand);
+        
+
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -124,10 +136,7 @@ class Map extends React.Component {
     } else {
       markersLayer.eachLayer(function(layer) {
         if (layer.options.index === idx) {
-          layer.unbindTooltip();
-          layer.bindTooltip(location.title + ", " + location.description, {
-            permanent: false
-          });
+          layer.setTooltipContent(location.title + ", " + location.description);
         }
       });
     }
