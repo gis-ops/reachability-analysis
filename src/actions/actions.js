@@ -1,4 +1,5 @@
 import { hereConfig } from "../hereConfig";
+import SettingsObject from "../Controls/SettingsObject"
 
 export const REQUEST_GEOCODE_RESULTS = "REQUEST_GEOCODE_RESULTS";
 export const RECEIVE_GEOCODE_RESULTS = "RECEIVE_GEOCODE_RESULTS";
@@ -9,6 +10,8 @@ export const ADD_ISOCHRONESCONTROL = "ADD_ISOCHRONESCONTROL";
 export const UPDATE_TEXTINPUT = "UPDATE_TEXTINPUT";
 export const UPDATE_SELECTED_ADDRESS = "UPDATE_SELECTED_ADDRESS";
 export const REMOVE_ISOCHRONES_CONTROL = "REMOVE_ISOCHRONES_CONTROL";
+export const UPDATE_SETTINGS = "UPDATE_SETTINGS";
+
 
 const parseResponse = (json, latLng) => {
   if (json.Response && json.Response.View.length > 0) {
@@ -21,7 +24,7 @@ const parseResponse = (json, latLng) => {
         processedResults.push({
           title: address.Location.Address.Label,
           description: address.Location.Address.PostalCode,
-          DisplayPosition: {
+          displayposition: {
             lat: latLng
               ? latLng.lat
               : address.Location.DisplayPosition.Latitude,
@@ -158,7 +161,7 @@ export const requestGeocodeResults = controlIndex => ({
 
 export const addIsochronesControl = () => ({
   type: ADD_ISOCHRONESCONTROL,
-  payload: { userInput: "", geocodeResults: [], isFetching: false }
+  payload: new SettingsObject()
 });
 
 export const removeIsochronesControl = controlIndex => ({
@@ -174,4 +177,9 @@ export const updateTextInput = textInputIndex => ({
 export const updateSelectedAddress = textInputIndex => ({
   type: UPDATE_SELECTED_ADDRESS,
   payload: textInputIndex
+});
+
+export const updateSettings = payload => ({
+  type: UPDATE_SETTINGS,
+  payload: payload
 });

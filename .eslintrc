@@ -1,0 +1,29 @@
+{
+  "parser": "babel-eslint",
+  "extends": ["standard", "eslint:recommended", "plugin:react/recommended"],
+  "plugins": ["prettier", "react"],
+  "rules": {
+    "prettier/prettier": "error",
+    "quotes": ["error", "single"],
+    "no-debugger": "warn",
+    "no-console": "warn",
+    "space-before-function-paren": [
+      "error",
+      {
+        "anonymous": "never",
+        "named": "never",
+        "asyncArrow": "always"
+      }
+    ],
+    "react/prop-types": "warn"
+  },
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "globals": {
+    "H": true,
+    "localStorage": true
+  }
+}

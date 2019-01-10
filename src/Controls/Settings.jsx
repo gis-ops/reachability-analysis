@@ -1,95 +1,142 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { connect } from "react-redux";
-import { Slider } from "react-semantic-ui-range";
-import { Label, Input, Button, Divider } from "semantic-ui-react";
+import React from 'react'
+import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
+import { Slider } from 'react-semantic-ui-range'
+import { Label, Input, Button, Divider } from 'semantic-ui-react'
+import { updateSettings } from '../actions/actions'
+
+const transportModes = {
+  pedestrian: {
+    name: 'pedestrian',
+    type: ['fastest', 'shortest'],
+    traffic: ['enabled', 'disabled']
+  },
+  car: {
+    name: 'car',
+    type: ['fastest', 'shortest', 'traffic'],
+    traffic: ['enabled', 'disabled'],
+    consumptionModel: ['default', 'standard'],
+    customConsumptionDetails: {}
+  },
+  truck: {
+    name: 'truck',
+    type: ['fastest'],
+    shippedHazardousGoods: [],
+    limitedWeight: {},
+    weightPerAxle: {},
+    height: {},
+    width: {},
+    length: {},
+    tunnelCategory: [],
+    consumptionModel: ['default', 'standard'],
+    customConsumptionDetails: {}
+  }
+}
 
 class Settings extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      rangeValue: 60,
-      intervalValue: 10
-    };
+  // constructor(props) {
+  //   super(props);
+  // }
+
+  static propTypes = {
+    userTextInput: PropTypes.string.isRequired,
+    results: PropTypes.array.isRequired,
+    isFetching: PropTypes.bool.isRequired,
+    dispatch: PropTypes.func.isRequired,
+    controls: PropTypes.array.isRequired,
+    controlindex: PropTypes.number.isRequired
+  }
+
+  updateSettings() {
+    const { controls, controlindex, dispatch } = this.props
+
+    dispatch(
+      updateSettings({
+        controlIndex: controlindex,
+        settings: controls[controlindex].settings
+      })
+    )
+  }
+
+  handleClickMode(mode) {
+    const { controls, controlindex } = this.props
+
+    controls[controlindex].settings.mode = mode
+
+    this.updateSettings()
   }
 
   handleRangeValueChange(e, { value }) {
-    this.setState({
-      rangeValue: value
-    });
+    const { controls, controlindex } = this.props
+
+    controls[controlindex].settings.range.value = value
+
+    this.updateSettings()
   }
 
   handleIntervalValueChange(e, { value }) {
-    this.setState({
-      intervalValue: value
-    });
+    const { controls, controlindex } = this.props
+
+    controls[controlindex].settings.interval.value = value
+
+    this.updateSettings()
   }
 
   render() {
+    const { controls, controlindex } = this.props
+
     const rangeSettings = {
-      start: this.state.rangeValue,
-      min: 1,
-      max: 600,
-      step: 5,
-      onChange: value => {
-        this.setState({
-          rangeValue: value
-        });
+      settings: {
+        ...controls[controlindex].settings.range,
+        start: controls[controlindex].settings.range.value,
+        onChange: value => {
+          controls[controlindex].settings.range.value = value
+
+          if (
+            controls[controlindex].settings.range.value <
+            controls[controlindex].settings.interval.value
+          ) {
+            controls[controlindex].settings.interval.value =
+              controls[controlindex].settings.range.value
+          }
+
+          controls[controlindex].settings.interval.max =
+            controls[controlindex].settings.range.value
+
+          this.updateSettings()
+        }
       }
-    };
+    }
 
     const intervalSettings = {
-      start: this.state.intervalValue,
-      min: 1,
-      max: 600,
-      step: 5,
-      onChange: value => {
-        this.setState({
-          intervalValue: value
-        });
-      }
-    };
+      settings: {
+        ...controls[controlindex].settings.interval,
+        start: controls[controlindex].settings.interval.value,
+        onChange: value => {
+          controls[controlindex].settings.interval.value = value
 
-    const transportModes = {
-      pedestrian: {
-        name: "pedestrian",
-        type: ["fastest", "shortest"],
-        traffic: ["enabled", "disabled"]
-      },
-      car: {
-        name: "car",
-        type: ["fastest", "shortest", "traffic"],
-        traffic: ["enabled", "disabled"],
-        consumptionModel: ["default", "standard"],
-        customConsumptionDetails: {}
-      },
-      truck: {
-        name: "truck",
-        type: ["fastest"],
-        shippedHazardousGoods: [],
-        limitedWeight: {},
-        weightPerAxle: {},
-        height: {},
-        width: {},
-        length: {},
-        tunnelCategory: [],
-        consumptionModel: ["default", "standard"],
-        customConsumptionDetails: {}
+          this.updateSettings()
+        }
       }
-    };
+    }
 
-    //const { controls } = this.props;
     return (
       <div>
         <div className="mb3">
           <Label size="small" color="purple">
-            {"Mode"}
+            {'Mode'}
           </Label>
           <div className="mt3">
             <Button.Group basic size="small">
               {transportModes &&
                 Object.keys(transportModes).map((key, i) => (
-                  <Button key={i}>{transportModes[key].name}</Button>
+                  <Button
+                    active={key === controls[controlindex].settings.mode}
+                    key={i}
+                    mode={key}
+                    onClick={() => this.handleClickMode(key)}>
+                    {transportModes[key].name}
+                  </Button>
                 ))}
             </Button.Group>
           </div>
@@ -97,15 +144,15 @@ class Settings extends React.Component {
         <Divider />
         <div>
           <Label size="small" color="purple">
-            {"Range"}
+            {'Range'}
           </Label>
           <div className="mt3">
             <Slider
               discrete
               color="grey"
-              value={this.state.rangeValue}
+              value={controls[controlindex].settings.range.value}
               inverted={false}
-              settings={rangeSettings}
+              settings={rangeSettings.settings}
             />
             <div className="mt2 flex justify-between items-center">
               <Input
@@ -113,8 +160,8 @@ class Settings extends React.Component {
                 placeholder="Enter Value"
                 onChange={this.handleRangeValueChange.bind(this)}
               />
-              <Label className="mt2" color="grey" size={"mini"}>
-                {this.state.rangeValue + " minutes"}
+              <Label className="mt2" color="grey" size={'mini'}>
+                {controls[controlindex].settings.range.value + ' minutes'}
               </Label>
             </div>
           </div>
@@ -122,15 +169,15 @@ class Settings extends React.Component {
         <Divider />
         <div>
           <Label size="small" color="purple">
-            {"Interval"}
+            {'Interval'}
           </Label>
           <div className="mt3">
             <Slider
               discrete
               color="grey"
-              value={this.state.intervalValue}
+              value={controls[controlindex].settings.interval.value}
               inverted={false}
-              settings={intervalSettings}
+              settings={intervalSettings.settings}
             />
             <div className="mt2 flex justify-between items-center">
               <Input
@@ -138,22 +185,22 @@ class Settings extends React.Component {
                 placeholder="Enter Value"
                 onChange={this.handleIntervalValueChange.bind(this)}
               />
-              <Label className="mt2" color="grey" size={"mini"}>
-                {this.state.intervalValue + " minutes"}
+              <Label className="mt2" color="grey" size={'mini'}>
+                {controls[controlindex].settings.interval.value + ' minutes'}
               </Label>
             </div>
           </div>
         </div>
       </div>
-    );
+    )
   }
 }
 
 const mapStateToProps = state => {
-  const { controls } = state.isochronesControls;
+  const { controls } = state.isochronesControls
   return {
     controls
-  };
-};
+  }
+}
 
-export default connect(mapStateToProps)(Settings);
+export default connect(mapStateToProps)(Settings)

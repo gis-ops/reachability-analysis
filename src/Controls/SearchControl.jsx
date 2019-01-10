@@ -1,7 +1,7 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { connect } from "react-redux";
-import Settings from "./Settings";
+import React from 'react'
+import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
+import Settings from './Settings'
 import {
   Segment,
   Search,
@@ -11,69 +11,69 @@ import {
   Accordion,
   Divider,
   Button
-} from "semantic-ui-react";
+} from 'semantic-ui-react'
 import {
   updateTextInput,
   fetchHereGeocode,
   updateSelectedAddress,
   removeIsochronesControl
-} from "../actions/actions";
-import InlineEdit from "react-edit-inline2";
-
-import { debounce } from "throttle-debounce";
+} from '../actions/actions'
+import InlineEdit from 'react-edit-inline2'
+import { debounce } from 'throttle-debounce'
 
 class SearchControl extends React.Component {
   static propTypes = {
     userTextInput: PropTypes.string.isRequired,
-    items: PropTypes.array.isRequired,
+    results: PropTypes.array.isRequired,
     isFetching: PropTypes.bool.isRequired,
-    dispatch: PropTypes.func.isRequired
-  };
+    dispatch: PropTypes.func.isRequired,
+    controls: PropTypes.array.isRequired,
+    controlindex: PropTypes.number.isRequired
+  }
 
   constructor(props) {
-    super(props);
+    super(props)
 
-    this.dataChanged = this.dataChanged.bind(this);
+    this.dataChanged = this.dataChanged.bind(this)
 
     this.state = {
-      isochronesTitle: "Isochrones -" + (props.controlIndex + 1),
+      isochronesTitle: 'Isochrones -' + (props.controlindex + 1),
       activeIndex: 0
-    };
-    this.handleSearchChange = this.handleSearchChange.bind(this);
-    //this.handleSelectionChange = this.handleSelectionChange.bind(this);
-    this.handleResultSelect = this.handleResultSelect.bind(this);
-    this.fetchGeocodeResults = debounce(1000, this.fetchGeocodeResults);
+    }
+    this.handleSearchChange = this.handleSearchChange.bind(this)
+    this.handleResultSelect = this.handleResultSelect.bind(this)
+    this.fetchGeocodeResults = debounce(1000, this.fetchGeocodeResults)
   }
 
   handleClick = (e, titleProps) => {
-    const { index } = titleProps;
-    const { activeIndex } = this.state;
-    const newIndex = activeIndex === index ? -1 : index;
+    const { index } = titleProps
+    const { activeIndex } = this.state
+    const newIndex = activeIndex === index ? -1 : index
 
-    this.setState({ activeIndex: newIndex });
-  };
+    this.setState({ activeIndex: newIndex })
+  }
 
   fetchGeocodeResults() {
-    const { dispatch, userTextInput } = this.props;
+    const { dispatch, userTextInput } = this.props
 
-    console.log(userTextInput);
+    console.log(userTextInput)
     dispatch(
       fetchHereGeocode({
         inputValue: userTextInput,
-        controlIndex: this.props.controlIndex
+        controlIndex: this.props.controlindex
       })
-    );
+    )
   }
 
   handleSearchChange = event => {
     this.props.dispatch(
       updateTextInput({
         inputValue: event.target.value,
-        controlIndex: this.props.controlIndex
+        controlIndex: this.props.controlindex
       })
-    );
-    this.fetchGeocodeResults();
-  };
+    )
+    this.fetchGeocodeResults()
+  }
 
   // handleSelectionChange = event => {
   //   console.log(event.target.value);
@@ -83,50 +83,53 @@ class SearchControl extends React.Component {
     this.props.dispatch(
       updateTextInput({
         inputValue: result.title,
-        controlIndex: this.props.controlIndex
+        controlIndex: this.props.controlindex
       })
-    );
+    )
 
     this.props.dispatch(
       updateSelectedAddress({
         inputValue: result.title,
-        controlIndex: this.props.controlIndex
+        controlIndex: this.props.controlindex
       })
-    );
-  };
+    )
+  }
 
   customValidateText(text) {
-    return text.length > 0 && text.length < 64;
+    return text.length > 0 && text.length < 64
   }
 
   dataChanged(data) {
-    this.setState({ ...data });
+    this.setState({ ...data })
   }
 
   fetchIsochrones() {
-
     console.log('fetching...')
-
   }
   render() {
-    const { isFetching, userTextInput, results, controlIndex } = this.props;
+    const {
+      isFetching,
+      userTextInput,
+      results,
+      controls,
+      controlindex
+    } = this.props
 
     const handleRemoveControl = () => {
-      console.log(controlIndex);
-      if (controlIndex > 0) {
+      if (controls.length > 1) {
         this.props.dispatch(
-          removeIsochronesControl({ controlIndex: controlIndex })
-        );
+          removeIsochronesControl({ controlIndex: controlindex })
+        )
       }
-    };
+    }
 
     const isResultSelected = () => {
       for (let result of results) {
-        if (result.selected) return false;
+        if (result.selected) return false
       }
 
-      return true;
-    };
+      return true
+    }
     return (
       <Segment>
         <Container className="mb2" textAlign="left">
@@ -138,20 +141,20 @@ class SearchControl extends React.Component {
             change={this.dataChanged}
             style={{
               minWidth: 200,
-              display: "inline-block",
-              margin: "0 0 0 0",
+              display: 'inline-block',
+              margin: '0 0 0 0',
               padding: 0,
-              fontWeight: "bold",
+              fontWeight: 'bold',
               fontSize: 15,
-              outline: "none",
-              border: "none"
+              outline: 'none',
+              border: 'none'
             }}
           />
           <Popup
             trigger={
               <Icon
                 name="close"
-                style={{ float: "right" }}
+                style={{ float: 'right' }}
                 onClick={handleRemoveControl}
               />
             }
@@ -172,7 +175,6 @@ class SearchControl extends React.Component {
             results={results}
             value={userTextInput}
             placeholder="Find Address ..."
-            {...this.props}
           />
           <Popup
             trigger={
@@ -193,34 +195,35 @@ class SearchControl extends React.Component {
             <Accordion.Title
               active={this.state.activeIndex === 0}
               index={0}
-              onClick={this.handleClick}
-            >
+              onClick={this.handleClick}>
               <Icon name="dropdown" />
               Settings
             </Accordion.Title>
             <Accordion.Content active={this.state.activeIndex === 0}>
-              <Settings />
+              <Settings controlindex={controlindex} />
             </Accordion.Content>
           </Accordion>
         </Container>
       </Segment>
-    );
+    )
   }
 }
 
 const mapStateToProps = (state, ownProps) => {
   const userTextInput =
-    state.isochronesControls.controls[ownProps.controlIndex].userInput;
+    state.isochronesControls.controls[ownProps.controlindex].userInput
   const results =
-    state.isochronesControls.controls[ownProps.controlIndex].geocodeResults;
+    state.isochronesControls.controls[ownProps.controlindex].geocodeResults
   const isFetching =
-    state.isochronesControls.controls[ownProps.controlIndex].isFetching;
+    state.isochronesControls.controls[ownProps.controlindex].isFetching
+  const controls = state.isochronesControls.controls
 
   return {
     userTextInput,
     results,
-    isFetching
-  };
-};
+    isFetching,
+    controls
+  }
+}
 
-export default connect(mapStateToProps)(SearchControl);
+export default connect(mapStateToProps)(SearchControl)

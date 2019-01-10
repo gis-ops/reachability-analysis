@@ -1,4 +1,4 @@
-import { combineReducers } from "redux";
+import { combineReducers } from 'redux'
 import {
   REQUEST_GEOCODE_RESULTS,
   RECEIVE_GEOCODE_RESULTS,
@@ -6,26 +6,31 @@ import {
   ADD_ISOCHRONESCONTROL,
   REMOVE_ISOCHRONES_CONTROL,
   UPDATE_TEXTINPUT,
-  UPDATE_SELECTED_ADDRESS
-} from "../actions/actions";
+  UPDATE_SELECTED_ADDRESS,
+  UPDATE_SETTINGS
+} from '../actions/actions'
+
+import SettingsObject from '../Controls/SettingsObject'
 
 const initialIsochronesControlsState = {
-  controls: [{ userInput: "", geocodeResults: [], isFetching: false }]
-};
+  controls: [new SettingsObject()]
+}
 
 const isochronesControls = (state = initialIsochronesControlsState, action) => {
-  console.log(action);
+  console.log(action)
   switch (action.type) {
     case ADD_ISOCHRONESCONTROL:
       return {
         ...state,
         controls: [...state.controls, action.payload]
-      };
+      }
     case REMOVE_ISOCHRONES_CONTROL:
       return {
         ...state,
-        controls: state.controls.filter((item, i) => i !== action.payload.controlIndex)
-      };
+        controls: state.controls.filter(
+          (item, i) => i !== action.payload.controlIndex
+        )
+      }
     case UPDATE_TEXTINPUT:
       return {
         ...state,
@@ -34,14 +39,14 @@ const isochronesControls = (state = initialIsochronesControlsState, action) => {
             ? { ...control, userInput: action.payload.inputValue }
             : control
         )
-      };
+      }
     case REQUEST_GEOCODE_RESULTS:
       return {
         ...state,
         controls: state.controls.map((control, i) =>
           i === action.controlIndex ? { ...control, isFetching: true } : control
         )
-      };
+      }
     case RECEIVE_GEOCODE_RESULTS:
       return {
         ...state,
@@ -55,9 +60,8 @@ const isochronesControls = (state = initialIsochronesControlsState, action) => {
               }
             : control
         )
-      };
+      }
     case RECEIVE_REVERSE_GEOCODE_RESULTS:
-      console.info("here", action);
       return {
         ...state,
         controls: state.controls.map((control, i) =>
@@ -70,7 +74,7 @@ const isochronesControls = (state = initialIsochronesControlsState, action) => {
               }
             : control
         )
-      };
+      }
     case UPDATE_SELECTED_ADDRESS:
       return {
         ...state,
@@ -86,16 +90,40 @@ const isochronesControls = (state = initialIsochronesControlsState, action) => {
               }
             : control
         )
-      };
+      }
+    case UPDATE_SETTINGS:
+      return {
+        ...state,
+        controls: state.controls.map((control, i) =>
+          i === action.controlIndex
+            ? {
+                ...control,
+                settings: action.payload.settings
+              }
+            : control
+        )
+      }
+    // case UPDATE_RANGE_SETTINGS:
+    //   console.log(action)
+    //   return {
+    //     ...state,
+    //     controls: state.controls.map((control, i) =>
+    //       i === action.controlIndex
+    //         ? {
+    //             ...control,
+    //             settings: { ...control.settings, range: action.payload.settings}
+    //           }
+    //         : control
+    //     )
+    //   };
 
     default:
-      return state;
+      return state
   }
-};
-
+}
 
 const rootReducer = combineReducers({
   isochronesControls
-});
+})
 
-export default rootReducer;
+export default rootReducer
