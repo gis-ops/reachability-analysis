@@ -7,19 +7,16 @@ import { updateSettings } from '../actions/actions'
 
 const transportModes = {
   pedestrian: {
-    name: 'pedestrian',
     type: ['fastest', 'shortest'],
     traffic: ['enabled', 'disabled']
   },
   car: {
-    name: 'car',
     type: ['fastest', 'shortest', 'traffic'],
     traffic: ['enabled', 'disabled'],
     consumptionModel: ['default', 'standard'],
     customConsumptionDetails: {}
   },
   truck: {
-    name: 'truck',
     type: ['fastest'],
     shippedHazardousGoods: [],
     limitedWeight: {},
@@ -33,15 +30,20 @@ const transportModes = {
   }
 }
 
+const rangeTypes = {
+  distance: {},
+  time: {}
+}
+
 class Settings extends React.Component {
   // constructor(props) {
   //   super(props);
   // }
 
   static propTypes = {
-    userTextInput: PropTypes.string.isRequired,
-    results: PropTypes.array.isRequired,
-    isFetching: PropTypes.bool.isRequired,
+    userTextInput: PropTypes.string,
+    results: PropTypes.array,
+    isFetching: PropTypes.bool,
     dispatch: PropTypes.func.isRequired,
     controls: PropTypes.array.isRequired,
     controlindex: PropTypes.number.isRequired
@@ -66,6 +68,14 @@ class Settings extends React.Component {
     this.updateSettings()
   }
 
+  handleRangetype(rangetype) {
+    const { controls, controlindex } = this.props
+
+    controls[controlindex].settings.rangetype = rangetype
+
+    this.updateSettings()
+  }
+
   handleRangeValueChange(e, { value }) {
     const { controls, controlindex } = this.props
 
@@ -84,6 +94,11 @@ class Settings extends React.Component {
 
   render() {
     const { controls, controlindex } = this.props
+
+    const rangetype =
+      controls[controlindex].settings.rangetype == 'time'
+        ? ' minutes'
+        : ' kilometers'
 
     const rangeSettings = {
       settings: {
@@ -135,13 +150,35 @@ class Settings extends React.Component {
                     key={i}
                     mode={key}
                     onClick={() => this.handleClickMode(key)}>
-                    {transportModes[key].name}
+                    {key}
                   </Button>
                 ))}
             </Button.Group>
           </div>
         </div>
         <Divider />
+
+        <div className="mb3">
+          <Label size="small" color="purple">
+            {'Range Type'}
+          </Label>
+          <div className="mt3">
+            <Button.Group basic size="small">
+              {rangeTypes &&
+                Object.keys(rangeTypes).map((key, i) => (
+                  <Button
+                    active={key === controls[controlindex].settings.rangetype}
+                    key={i}
+                    mode={key}
+                    onClick={() => this.handleRangetype(key)}>
+                    {key}
+                  </Button>
+                ))}
+            </Button.Group>
+          </div>
+        </div>
+        <Divider />
+
         <div>
           <Label size="small" color="purple">
             {'Range'}
@@ -161,7 +198,7 @@ class Settings extends React.Component {
                 onChange={this.handleRangeValueChange.bind(this)}
               />
               <Label className="mt2" color="grey" size={'mini'}>
-                {controls[controlindex].settings.range.value + ' minutes'}
+                {controls[controlindex].settings.range.value + rangetype}
               </Label>
             </div>
           </div>
@@ -186,7 +223,7 @@ class Settings extends React.Component {
                 onChange={this.handleIntervalValueChange.bind(this)}
               />
               <Label className="mt2" color="grey" size={'mini'}>
-                {controls[controlindex].settings.interval.value + ' minutes'}
+                {controls[controlindex].settings.interval.value + rangetype}
               </Label>
             </div>
           </div>

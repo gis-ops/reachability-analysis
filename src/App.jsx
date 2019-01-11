@@ -7,7 +7,7 @@ class App extends React.Component {
     return (
       <div>
         <Map />
-        <Controls className={`isoControls`} />
+        <Controls className={'isoControls'} />
       </div>
     )
   }

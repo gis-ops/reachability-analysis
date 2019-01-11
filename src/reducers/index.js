@@ -1,8 +1,10 @@
 import { combineReducers } from 'redux'
 import {
   REQUEST_GEOCODE_RESULTS,
+  REQUEST_ISOCHRONES_RESULTS,
   RECEIVE_GEOCODE_RESULTS,
   RECEIVE_REVERSE_GEOCODE_RESULTS,
+  RECEIVE_ISOCHRONES_RESULTS,
   ADD_ISOCHRONESCONTROL,
   REMOVE_ISOCHRONES_CONTROL,
   UPDATE_TEXTINPUT,
@@ -37,6 +39,15 @@ const isochronesControls = (state = initialIsochronesControlsState, action) => {
         controls: state.controls.map((control, i) =>
           i === action.payload.controlIndex
             ? { ...control, userInput: action.payload.inputValue }
+            : control
+        )
+      }
+    case REQUEST_ISOCHRONES_RESULTS:
+      return {
+        ...state,
+        controls: state.controls.map((control, i) =>
+          i === action.controlIndex
+            ? { ...control, isFetchingIsochrones: true }
             : control
         )
       }
@@ -103,20 +114,22 @@ const isochronesControls = (state = initialIsochronesControlsState, action) => {
             : control
         )
       }
-    // case UPDATE_RANGE_SETTINGS:
-    //   console.log(action)
-    //   return {
-    //     ...state,
-    //     controls: state.controls.map((control, i) =>
-    //       i === action.controlIndex
-    //         ? {
-    //             ...control,
-    //             settings: { ...control.settings, range: action.payload.settings}
-    //           }
-    //         : control
-    //     )
-    //   };
-
+    case RECEIVE_ISOCHRONES_RESULTS:
+      return {
+        ...state,
+        controls: state.controls.map((control, i) =>
+          i === action.controlIndex
+            ? {
+                ...control,
+                isFetchingIsochrones: false,
+                isochrones: {
+                  results: action.results,
+                  receivedAt: action.receivedAt
+                }
+              }
+            : control
+        )
+      }
     default:
       return state
   }

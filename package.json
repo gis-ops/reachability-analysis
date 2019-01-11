@@ -2,8 +2,10 @@
   "name": "react-redux-leaflet",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://gis-ops.github.io/here-isolines-app/",
   "dependencies": {
     "axios": "^0.18.0",
+    "chroma-js": "^2.0.2",
     "leaflet": "^1.4.0",
     "leaflet-extra-markers": "^1.0.6",
     "prop-types": "^15.6.2",
@@ -25,6 +27,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "predeploy": "react-scripts build",
+    "deploy": "gh-pages -d build",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -42,6 +46,7 @@
     "eslint-plugin-prettier": "^3.0.1",
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-standard": "^4.0.0",
+    "gh-pages": "^2.0.1",
     "redux-devtools-extension": "^2.13.7"
   }
 }

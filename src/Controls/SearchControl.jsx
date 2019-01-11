@@ -16,7 +16,8 @@ import {
   updateTextInput,
   fetchHereGeocode,
   updateSelectedAddress,
-  removeIsochronesControl
+  removeIsochronesControl,
+  fetchHereIsochrones
 } from '../actions/actions'
 import InlineEdit from 'react-edit-inline2'
 import { debounce } from 'throttle-debounce'
@@ -26,6 +27,7 @@ class SearchControl extends React.Component {
     userTextInput: PropTypes.string.isRequired,
     results: PropTypes.array.isRequired,
     isFetching: PropTypes.bool.isRequired,
+    isFetchingIsochrones: PropTypes.bool.isRequired,
     dispatch: PropTypes.func.isRequired,
     controls: PropTypes.array.isRequired,
     controlindex: PropTypes.number.isRequired
@@ -54,22 +56,24 @@ class SearchControl extends React.Component {
   }
 
   fetchGeocodeResults() {
-    const { dispatch, userTextInput } = this.props
+    const { dispatch, userTextInput, controlindex } = this.props
 
     console.log(userTextInput)
     dispatch(
       fetchHereGeocode({
         inputValue: userTextInput,
-        controlIndex: this.props.controlindex
+        controlIndex: controlindex
       })
     )
   }
 
   handleSearchChange = event => {
-    this.props.dispatch(
+    const { dispatch, controlindex } = this.props
+
+    dispatch(
       updateTextInput({
         inputValue: event.target.value,
-        controlIndex: this.props.controlindex
+        controlIndex: controlindex
       })
     )
     this.fetchGeocodeResults()
@@ -80,17 +84,19 @@ class SearchControl extends React.Component {
   // };
 
   handleResultSelect = (e, { result }) => {
-    this.props.dispatch(
+    const { dispatch, controlindex } = this.props
+
+    dispatch(
       updateTextInput({
         inputValue: result.title,
-        controlIndex: this.props.controlindex
+        controlIndex: controlindex
       })
     )
 
-    this.props.dispatch(
+    dispatch(
       updateSelectedAddress({
         inputValue: result.title,
-        controlIndex: this.props.controlindex
+        controlIndex: controlindex
       })
     )
   }
@@ -103,12 +109,31 @@ class SearchControl extends React.Component {
     this.setState({ ...data })
   }
 
-  fetchIsochrones() {
-    console.log('fetching...')
+  handleFetchIsochrones = () => {
+    const { dispatch, controlindex, controls } = this.props
+
+    let displayposition
+    for (let result of controls[controlindex].geocodeResults) {
+      if (result.selected) displayposition = result.displayposition
+    }
+
+    dispatch(
+      fetchHereIsochrones({
+        controlIndex: controlindex,
+        settings: controls[controlindex].settings,
+        center: displayposition
+      })
+    )
   }
+
+  handleZoom = controlIndex => {
+    console.log('zoom')
+  }
+
   render() {
     const {
       isFetching,
+      isFetchingIsochrones,
       userTextInput,
       results,
       controls,
@@ -131,7 +156,7 @@ class SearchControl extends React.Component {
       return true
     }
     return (
-      <Segment>
+      <Segment style={{ margin: '20px' }}>
         <Container className="mb2" textAlign="left">
           <InlineEdit
             validate={this.customValidateText}
@@ -150,15 +175,27 @@ class SearchControl extends React.Component {
               border: 'none'
             }}
           />
+
           <Popup
             trigger={
               <Icon
-                name="close"
+                name="remove"
                 style={{ float: 'right' }}
                 onClick={handleRemoveControl}
               />
             }
             content="Remove"
+            size="mini"
+          />
+          <Popup
+            trigger={
+              <Icon
+                name="expand arrows alternate"
+                style={{ float: 'right' }}
+                onClick={this.handleZoom}
+              />
+            }
+            content="Zoom"
             size="mini"
           />
         </Container>
@@ -180,10 +217,11 @@ class SearchControl extends React.Component {
             trigger={
               <Button
                 circular
+                loading={isFetchingIsochrones}
                 disabled={isResultSelected()}
                 color="purple"
                 icon="globe"
-                onClick={this.fetchIsochrones}
+                onClick={this.handleFetchIsochrones}
               />
             }
             content="Compute isochrones"
@@ -216,12 +254,16 @@ const mapStateToProps = (state, ownProps) => {
     state.isochronesControls.controls[ownProps.controlindex].geocodeResults
   const isFetching =
     state.isochronesControls.controls[ownProps.controlindex].isFetching
+  const isFetchingIsochrones =
+    state.isochronesControls.controls[ownProps.controlindex]
+      .isFetchingIsochrones
   const controls = state.isochronesControls.controls
 
   return {
     userTextInput,
     results,
     isFetching,
+    isFetchingIsochrones,
     controls
   }
 }

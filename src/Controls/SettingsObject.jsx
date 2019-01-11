@@ -2,7 +2,12 @@ export default class SettingsObject {
   constructor() {
     this.userInput = ''
     this.geocodeResults = []
+    this.isochrones = {
+      receivedAt: null,
+      results: []
+    }
     this.isFetching = false
+    this.isFetchingIsochrones = false
     this.settings = {
       range: {
         min: 1,
@@ -16,7 +21,8 @@ export default class SettingsObject {
         step: 1,
         value: 10
       },
-      mode: 'car'
+      mode: 'car',
+      rangetype: 'distance'
     }
   }
 }
