@@ -96,7 +96,7 @@ class Settings extends React.Component {
     const { controls, controlindex } = this.props
 
     const rangetype =
-      controls[controlindex].settings.rangetype == 'time'
+      controls[controlindex].settings.rangetype === 'time'
         ? ' minutes'
         : ' kilometers'
 

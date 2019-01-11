@@ -109,11 +109,11 @@ class Map extends React.Component {
     const prevIsochronesControls = prevProps.isochronesControls
 
 
-    if (isochronesControls.length == prevIsochronesControls.length) {
+    if (isochronesControls.length === prevIsochronesControls.length) {
       //isochronesLayer.clearLayers()
       for (let i = 0; i < isochronesControls.length; i++) {
         if (
-          isochronesControls[i].isochrones.receivedAt !=
+          isochronesControls[i].isochrones.receivedAt !==
           prevIsochronesControls[i].isochrones.receivedAt
         ) {
           const scaleHsl = chroma

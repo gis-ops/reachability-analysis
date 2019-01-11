@@ -106,8 +106,6 @@ const setReverseGeocodeResult = (controlIndex, action) => dispatch => {
 }
 
 const processIsolineSettings = (settings, center) => {
-  console.log(settings, center)
-
   const isolineParameters = {}
 
   isolineParameters.start = center.lat + ',' + center.lng
@@ -116,7 +114,7 @@ const processIsolineSettings = (settings, center) => {
 
   // seconds
   const ranges = []
-  if (settings.rangetype == 'time') {
+  if (settings.rangetype === 'time') {
     let rangeInSeconds = settings.range.value * 60
     const intervalInSeconds = settings.interval.value * 60
 
@@ -129,7 +127,7 @@ const processIsolineSettings = (settings, center) => {
     isolineParameters.range = ranges.join(',')
 
     // meters
-  } else if (settings.rangetype == 'distance') {
+  } else if (settings.rangetype === 'distance') {
     let rangeInMeters = settings.range.value * 1000
     const intervalInMeters = settings.interval.value * 1000
 
@@ -141,9 +139,6 @@ const processIsolineSettings = (settings, center) => {
 
     isolineParameters.range = ranges.join(',')
   }
-
-  console.log(isolineParameters)
-
   return isolineParameters
 }
 

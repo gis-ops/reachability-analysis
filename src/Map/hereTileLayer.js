@@ -58,8 +58,11 @@ HereTileLayer.HERE = L.TileLayer.extend({
 
     var tileServer = 'base.maps.api.here.com'
     if (
+      // eslint-disable-next-line
       schemeStart == 'satellite' ||
+      // eslint-disable-next-line
       schemeStart == 'terrain' ||
+      // eslint-disable-next-line
       schemeStart == 'hybrid'
     ) {
       tileServer = 'aerial.maps.api.here.com'
@@ -99,6 +102,7 @@ HereTileLayer.HERE = L.TileLayer.extend({
   _fetchAttributionBBoxes: function _onMapMove() {
     var xmlhttp = new XMLHttpRequest()
     xmlhttp.onreadystatechange = L.bind(function() {
+      // eslint-disable-next-line
       if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
         this._parseAttributionBBoxes(JSON.parse(xmlhttp.responseText))
       }
@@ -160,6 +164,7 @@ HereTileLayer.HERE = L.TileLayer.extend({
     var attributions = [
       '<a href="https://legal.here.com/terms/serviceterms/gb/">HERE maps</a>'
     ]
+    // eslint-disable-next-line
     for (var i = 0; i < visibleProviders.length; i++) {
       var provider = visibleProviders[i]
       attributions.push(
