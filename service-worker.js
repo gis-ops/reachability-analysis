@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/here-isolines-app/precache-manifest.cbaec3241208c0c460d2fbefc403ee56.js"
+  "/here-isolines-app/precache-manifest.62482b31759513372b75b2c92d4b5eb1.js"
 );
 
 workbox.clientsClaim();
