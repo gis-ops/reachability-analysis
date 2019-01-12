@@ -11,7 +11,7 @@ const segmentStyle = {
   width: '400px',
   top: '0',
   left: '10px',
-  maxHeight: 'calc(100vh - 2vw)',
+  maxHeight: 'calc(100vh)',
   padding: '0px'
 }
 
@@ -58,7 +58,11 @@ class Controls extends React.Component {
         <div>
           <div style={{ flex: 1, display: 'flex', minHeight: '0px' }}>
             <div style={{ flex: 1, overflow: 'auto' }}>
-              <div style={{ maxHeight: 'calc(100vh - 6vw)', overflow: 'auto' }}>
+              <div
+                style={{
+                  maxHeight: 'calc(100vh - 2vw)',
+                  overflow: 'auto'
+                }}>
                 {controls &&
                   controls.map((object, i) => (
                     <SearchControl key={i} controlindex={i} />
