@@ -4,7 +4,7 @@ self.__precacheManifest = [
     "url": "/here-isolines-app/static/media/icons.0ab54153.woff2"
   },
   {
-    "revision": "cfd53bdf54f1884e7dd6",
+    "revision": "d22583525e876fab5a0f",
     "url": "/here-isolines-app/static/css/main.2d9c68ea.chunk.css"
   },
   {
@@ -12,8 +12,8 @@ self.__precacheManifest = [
     "url": "/here-isolines-app/static/media/brand-icons.a1a749e8.svg"
   },
   {
-    "revision": "2b6fbd95af56ceb1c585",
-    "url": "/here-isolines-app/static/js/1.2b6fbd95.chunk.js"
+    "revision": "3d586cbc7d26b88a4149",
+    "url": "/here-isolines-app/static/js/1.3d586cbc.chunk.js"
   },
   {
     "revision": "c5d0a647d779162e373f",
@@ -48,8 +48,8 @@ self.__precacheManifest = [
     "url": "/here-isolines-app/static/media/outline-icons.ad97afd3.ttf"
   },
   {
-    "revision": "cfd53bdf54f1884e7dd6",
-    "url": "/here-isolines-app/static/js/main.cfd53bdf.chunk.js"
+    "revision": "d22583525e876fab5a0f",
+    "url": "/here-isolines-app/static/js/main.d2258352.chunk.js"
   },
   {
     "revision": "faff92145777a3cbaf8e7367b4807987",
@@ -88,11 +88,11 @@ self.__precacheManifest = [
     "url": "/here-isolines-app/static/media/icons.962a1bf3.svg"
   },
   {
-    "revision": "2b6fbd95af56ceb1c585",
+    "revision": "3d586cbc7d26b88a4149",
     "url": "/here-isolines-app/static/css/1.3e9790a7.chunk.css"
   },
   {
-    "revision": "241d76f090aa408295164da6797f1529",
+    "revision": "fd2f1359600f97af7122f4821eb7fcbe",
     "url": "/here-isolines-app/index.html"
   }
 ];
