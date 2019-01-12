@@ -47,7 +47,8 @@ const mapParams = {
 
 class Map extends React.Component {
   static propTypes = {
-    isochronesControls: PropTypes.array.isRequired
+    isochronesControls: PropTypes.array.isRequired,
+    mapEvents: PropTypes.object
   }
   componentDidMount() {
     this.map = L.map('map', mapParams)
@@ -84,8 +85,9 @@ class Map extends React.Component {
   updateMarkers() {
     const { isochronesControls } = this.props
 
-    let cnt = 0
+    markersLayer.clearLayers()
 
+    let cnt = 0
     for (let isochrones of isochronesControls) {
       // add marker
       if (isochrones.geocodeResults.length > 0) {
@@ -106,35 +108,57 @@ class Map extends React.Component {
 
   updateIsochrones(prevProps) {
     const { isochronesControls } = this.props
-    const prevIsochronesControls = prevProps.isochronesControls
 
+    isochronesLayer.clearLayers()
 
-    if (isochronesControls.length === prevIsochronesControls.length) {
-      //isochronesLayer.clearLayers()
-      for (let i = 0; i < isochronesControls.length; i++) {
-        if (
-          isochronesControls[i].isochrones.receivedAt !==
-          prevIsochronesControls[i].isochrones.receivedAt
-        ) {
-          const scaleHsl = chroma
-            .scale(['#f44242', '#f4be41', '#41f497'])
-            .mode('hsl')
-            .colors(isochronesControls[i].isochrones.results.length)
+    for (let i = 0; i < isochronesControls.length; i++) {
+      if (
+        isochronesControls[i].isochrones.results.length > 0
+        //&& isochronesControls[i].isochrones.receivedAt > prevIsochronesControls[i].isochrones.receivedAt
+      ) {
+        let cnt = 0
+        const isochroneResultsReversed =
+          isochronesControls[i].isochrones.results
+        const scaleHsl = chroma
+          .scale(['#f44242', '#f4be41', '#41f497'])
+          .mode('hsl')
+          .colors(isochronesControls[i].isochrones.results.length)
 
-          let cnt = 0
-          for (const isochrone of isochronesControls[
-            i
-          ].isochrones.results.reverse()) {
-            for (const isochroneComponent of isochrone.component) {
-              this.addIsochrones(
-                isochroneComponent.shape,
-                isochrone.range,
-                scaleHsl[cnt]
-              )
-            }
-            cnt += 1
+        for (const isochrone of isochroneResultsReversed) {
+          for (const isochroneComponent of isochrone.component) {
+            this.addIsochrones(
+              isochroneComponent.shape,
+              isochronesControls[i].settings.rangetype === 'time'
+                ? isochrone.range / 60 + ' minutes'
+                : isochrone.range / 1000 + ' kilometers',
+              scaleHsl[cnt],
+              i
+            )
           }
+          cnt += 1
         }
+      }
+    }
+  }
+
+  updateMap(prevProps) {
+    const { mapEvents } = this.props
+    if (mapEvents.receivedAt > prevProps.mapEvents.receivedAt) {
+      let eventFeatures = L.featureGroup()
+
+      switch (mapEvents.event) {
+        case 'ZOOM_TO_ISOCHRONES':
+          isochronesLayer.eachLayer(function(layer) {
+            if (layer.options.index === mapEvents.controlIndex)
+              eventFeatures.addLayer(layer)
+          })
+
+          this.map.fitBounds(eventFeatures.getBounds())
+
+          break
+
+        default:
+          break
       }
     }
   }
@@ -142,6 +166,7 @@ class Map extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     this.updateMarkers()
     this.updateIsochrones(prevProps)
+    this.updateMap(prevProps)
   }
 
   clearLayerByIndex(idx) {
@@ -167,7 +192,8 @@ class Map extends React.Component {
     )
   }
 
-  addIsochrones(geometry, range, color) {
+  addIsochrones(geometry, range, color, index) {
+    console.log('adding this isochron')
     L.polygon(
       geometry.map(function(coordString) {
         return coordString.split(',')
@@ -177,7 +203,8 @@ class Map extends React.Component {
         weight: 2,
         opacity: 1,
         color: 'white',
-        pane: 'isochronesPane'
+        pane: 'isochronesPane',
+        index: index
       }
     )
       .addTo(isochronesLayer)
@@ -227,8 +254,10 @@ class Map extends React.Component {
 const mapStateToProps = (state, ownProps) => {
   console.log(state, ownProps)
   const isochronesControls = state.isochronesControls.controls
+  const mapEvents = state.mapEvents
   return {
-    isochronesControls
+    isochronesControls,
+    mapEvents
   }
 }
 

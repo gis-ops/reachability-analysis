@@ -36,7 +36,6 @@ class Controls extends React.Component {
 
   render() {
     const { controls } = this.props
-    console.log(segmentStyle)
     return (
       <Segment className="flex flex-column" style={segmentStyle}>
         {/*<div

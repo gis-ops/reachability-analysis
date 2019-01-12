@@ -19,6 +19,9 @@ import {
   removeIsochronesControl,
   fetchHereIsochrones
 } from '../actions/actions'
+
+import { zoomToIsochrones } from '../actions/map'
+
 import InlineEdit from 'react-edit-inline2'
 import { debounce } from 'throttle-debounce'
 
@@ -30,6 +33,7 @@ class SearchControl extends React.Component {
     isFetchingIsochrones: PropTypes.bool.isRequired,
     dispatch: PropTypes.func.isRequired,
     controls: PropTypes.array.isRequired,
+    isochronesResults: PropTypes.array,
     controlindex: PropTypes.number.isRequired
   }
 
@@ -57,8 +61,6 @@ class SearchControl extends React.Component {
 
   fetchGeocodeResults() {
     const { dispatch, userTextInput, controlindex } = this.props
-
-    console.log(userTextInput)
     dispatch(
       fetchHereGeocode({
         inputValue: userTextInput,
@@ -126,8 +128,9 @@ class SearchControl extends React.Component {
     )
   }
 
-  handleZoom = controlIndex => {
-    console.log('zoom')
+  handleZoom = () => {
+    const { dispatch, controlindex } = this.props
+    dispatch(zoomToIsochrones(controlindex))
   }
 
   render() {
@@ -137,7 +140,8 @@ class SearchControl extends React.Component {
       userTextInput,
       results,
       controls,
-      controlindex
+      controlindex,
+      isochronesResults
     } = this.props
 
     const handleRemoveControl = () => {
@@ -157,29 +161,70 @@ class SearchControl extends React.Component {
     }
     return (
       <Segment style={{ margin: '20px' }}>
-        <Container className="mb2" textAlign="left">
-          <InlineEdit
-            validate={this.customValidateText}
-            activeClassName="editing"
-            text={this.state.isochronesTitle}
-            paramName="isochronesTitle"
-            change={this.dataChanged}
-            style={{
-              minWidth: 200,
-              display: 'inline-block',
-              margin: '0 0 0 0',
-              padding: 0,
-              fontWeight: 'bold',
-              fontSize: 15,
-              outline: 'none',
-              border: 'none'
-            }}
-          />
+        <div className="mb2 justify-between flex flex-row items-center">
+          <div>
+            <Popup
+              trigger={<Icon name="pencil" />}
+              content="Edit name"
+              size="mini"
+            />
 
+            <InlineEdit
+              validate={this.customValidateText}
+              activeClassName="editing"
+              text={this.state.isochronesTitle}
+              paramName="isochronesTitle"
+              change={this.dataChanged}
+              style={{
+                minWidth: 150,
+                display: 'inline-block',
+                margin: '0 0 0 0',
+                padding: 0,
+                fontWeight: 'bold',
+                fontSize: 15,
+                outline: 'none',
+                border: 'none'
+              }}
+            />
+          </div>
+          {isochronesResults && isochronesResults.length > 0 && (
+            <Popup
+              trigger={
+                <Button
+                  circular
+                  size="mini"
+                  icon="unhide"
+                  style={{ float: 'right' }}
+                  onClick={this.handleShow}
+                  className="pr3"
+                />
+              }
+              content="Toggle on map"
+              size="mini"
+            />
+          )}
+          {isochronesResults && isochronesResults.length > 0 && (
+            <Popup
+              trigger={
+                <Button
+                  circular
+                  icon="expand arrows alternate"
+                  style={{ float: 'right' }}
+                  size="mini"
+                  onClick={this.handleZoom}
+                  className="pr4"
+                />
+              }
+              content="Zoom"
+              size="mini"
+            />
+          )}
           <Popup
             trigger={
-              <Icon
-                name="remove"
+              <Button
+                circular
+                size="mini"
+                icon="remove"
                 style={{ float: 'right' }}
                 onClick={handleRemoveControl}
               />
@@ -187,18 +232,7 @@ class SearchControl extends React.Component {
             content="Remove"
             size="mini"
           />
-          <Popup
-            trigger={
-              <Icon
-                name="expand arrows alternate"
-                style={{ float: 'right' }}
-                onClick={this.handleZoom}
-              />
-            }
-            content="Zoom"
-            size="mini"
-          />
-        </Container>
+        </div>
         <Divider fitted />
         <div className="flex justify-between items-center mt3">
           <Search
@@ -252,6 +286,8 @@ const mapStateToProps = (state, ownProps) => {
     state.isochronesControls.controls[ownProps.controlindex].userInput
   const results =
     state.isochronesControls.controls[ownProps.controlindex].geocodeResults
+  const isochronesResults =
+    state.isochronesControls.controls[ownProps.controlindex].isochrones.results
   const isFetching =
     state.isochronesControls.controls[ownProps.controlindex].isFetching
   const isFetchingIsochrones =
@@ -259,12 +295,16 @@ const mapStateToProps = (state, ownProps) => {
       .isFetchingIsochrones
   const controls = state.isochronesControls.controls
 
+  const mapEvents = state.mapEvents
+
   return {
     userTextInput,
     results,
     isFetching,
     isFetchingIsochrones,
-    controls
+    controls,
+    mapEvents,
+    isochronesResults
   }
 }
 

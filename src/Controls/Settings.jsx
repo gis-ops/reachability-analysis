@@ -139,7 +139,7 @@ class Settings extends React.Component {
       <div>
         <div className="mb3">
           <Label size="small" color="purple">
-            {'Mode'}
+            {'Travel mode'}
           </Label>
           <div className="mt3">
             <Button.Group basic size="small">
@@ -160,7 +160,7 @@ class Settings extends React.Component {
 
         <div className="mb3">
           <Label size="small" color="purple">
-            {'Range Type'}
+            {'Range type'}
           </Label>
           <div className="mt3">
             <Button.Group basic size="small">
@@ -181,7 +181,7 @@ class Settings extends React.Component {
 
         <div>
           <Label size="small" color="purple">
-            {'Range'}
+            {'Maximum range'}
           </Label>
           <div className="mt3">
             <Slider
@@ -206,7 +206,7 @@ class Settings extends React.Component {
         <Divider />
         <div>
           <Label size="small" color="purple">
-            {'Interval'}
+            {'Interval step'}
           </Label>
           <div className="mt3">
             <Slider

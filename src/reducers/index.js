@@ -12,6 +12,8 @@ import {
   UPDATE_SETTINGS
 } from '../actions/actions'
 
+import mapEvents from './map'
+
 import SettingsObject from '../Controls/SettingsObject'
 
 const initialIsochronesControlsState = {
@@ -136,7 +138,8 @@ const isochronesControls = (state = initialIsochronesControlsState, action) => {
 }
 
 const rootReducer = combineReducers({
-  isochronesControls
+  isochronesControls,
+  mapEvents
 })
 
 export default rootReducer

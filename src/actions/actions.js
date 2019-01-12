@@ -42,7 +42,8 @@ const parseGeocodeResponse = (json, latLng) => {
 
 const parseIsochronesResponse = json => {
   if (json.response && json.response.isoline.length > 0) {
-    return json.response.isoline
+    const isolinesReversed = json.response.isoline.reverse()
+    return isolinesReversed
   }
 
   return []

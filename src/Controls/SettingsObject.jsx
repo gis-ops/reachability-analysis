@@ -11,7 +11,7 @@ export default class SettingsObject {
     this.settings = {
       range: {
         min: 1,
-        max: 600,
+        max: 500,
         step: 1,
         value: 60
       },
