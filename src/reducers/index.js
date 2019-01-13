@@ -13,6 +13,7 @@ import {
 } from '../actions/actions'
 
 import mapEvents from './map'
+import resultHandler from './resulthandler'
 
 import SettingsObject from '../Controls/SettingsObject'
 
@@ -57,7 +58,9 @@ const isochronesControls = (state = initialIsochronesControlsState, action) => {
       return {
         ...state,
         controls: state.controls.map((control, i) =>
-          i === action.controlIndex ? { ...control, isFetching: true } : control
+          i === action.controlIndex
+            ? { ...control, isFetching: true, reverse: action.reverse }
+            : control
         )
       }
     case RECEIVE_GEOCODE_RESULTS:
@@ -96,7 +99,8 @@ const isochronesControls = (state = initialIsochronesControlsState, action) => {
             ? {
                 ...control,
                 geocodeResults: control.geocodeResults.map(result =>
-                  result.title === action.payload.inputValue
+                  result.title === action.payload.inputValue &&
+                  result.title.length > 0
                     ? { ...result, selected: true }
                     : { ...result, selected: false }
                 )
@@ -139,7 +143,8 @@ const isochronesControls = (state = initialIsochronesControlsState, action) => {
 
 const rootReducer = combineReducers({
   isochronesControls,
-  mapEvents
+  mapEvents,
+  resultHandler
 })
 
 export default rootReducer

@@ -20,7 +20,7 @@ import {
   fetchHereIsochrones
 } from '../actions/actions'
 
-import { zoomToIsochrones } from '../actions/map'
+import { zoomToPoint, zoomToIsochrones } from '../actions/map'
 
 import InlineEdit from 'react-edit-inline2'
 import { debounce } from 'throttle-debounce'
@@ -101,6 +101,8 @@ class SearchControl extends React.Component {
         controlIndex: controlindex
       })
     )
+
+    dispatch(zoomToPoint(result.displayposition))
   }
 
   customValidateText(text) {

@@ -8157,6 +8157,13 @@ react-scripts@2.1.2:
   optionalDependencies:
     fsevents "1.2.4"
 
+react-semantic-toasts@^0.4.1:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/react-semantic-toasts/-/react-semantic-toasts-0.4.1.tgz#d6dc4f13f7bdc63565d62a3197f1eb32c60a2a10"
+  integrity sha512-VAMyA4+emkfDIRczw3JFtVSmqTXlVR+JN3s9qPsamlQsQ1v+IZbuvJbZg501Z4Z1Uh3dnmctn9SHEL3zN2cEug==
+  dependencies:
+    prop-types "^15.6.2"
+
 react-semantic-ui-range@^0.6.2:
   version "0.6.2"
   resolved "https://registry.yarnpkg.com/react-semantic-ui-range/-/react-semantic-ui-range-0.6.2.tgz#5573c602616d5fe4a6134c07bfc78a60805cf18b"

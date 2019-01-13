@@ -38,17 +38,23 @@ const markersLayer = L.layerGroup()
 
 const isochronesLayer = L.layerGroup()
 
+const southWest = L.latLng(-90, -180),
+  northEast = L.latLng(90, 180),
+  bounds = L.latLngBounds(southWest, northEast)
+
 const mapParams = {
-  center: [40.655769, -73.938503],
+  center: [25.95681, -35.729687],
   zoomControl: false,
-  zoom: 13,
+  maxBounds: bounds,
+  zoom: 2,
   layers: [markersLayer, isochronesLayer, hereReducedDay]
 }
 
 class Map extends React.Component {
   static propTypes = {
     isochronesControls: PropTypes.array.isRequired,
-    mapEvents: PropTypes.object
+    mapEvents: PropTypes.object,
+    dispatch: PropTypes.func.isRequired
   }
   componentDidMount() {
     this.map = L.map('map', mapParams)
@@ -85,7 +91,7 @@ class Map extends React.Component {
   updateMarkers() {
     const { isochronesControls } = this.props
 
-    markersLayer.clearLayers()
+    //markersLayer.clearLayers()
 
     let cnt = 0
     for (let isochrones of isochronesControls) {
@@ -94,9 +100,7 @@ class Map extends React.Component {
         for (let location of isochrones.geocodeResults) {
           if (location.selected) {
             // if a address is geocoded normally, clear layer beforehand
-
             if (!isochrones.reverse) this.clearLayerByIndex(cnt)
-
             this.addIsochronesMarker(location, cnt, this.isMarkerPresent(cnt))
           }
         }
@@ -153,10 +157,15 @@ class Map extends React.Component {
               eventFeatures.addLayer(layer)
           })
 
-          this.map.fitBounds(eventFeatures.getBounds())
+          this.map.fitBounds(eventFeatures.getBounds(), {
+            paddingTopLeft: [100, 100]
+          })
 
           break
+        case 'ZOOM_TO_POINT':
+          this.map.flyTo(mapEvents.latLng, 14)
 
+          break
         default:
           break
       }
@@ -184,7 +193,8 @@ class Map extends React.Component {
   }
 
   updatePosition(obj) {
-    this.props.dispatch(
+    const { dispatch } = this.props
+    dispatch(
       fetchHereReverseGeocode({
         isoIndex: obj.isoIndex,
         ...obj.latLng
@@ -193,7 +203,6 @@ class Map extends React.Component {
   }
 
   addIsochrones(geometry, range, color, index) {
-    console.log('adding this isochron')
     L.polygon(
       geometry.map(function(coordString) {
         return coordString.split(',')
@@ -231,6 +240,7 @@ class Map extends React.Component {
         .bindTooltip(location.title + ', ' + location.description, {
           permanent: false
         })
+        .openTooltip()
         .on('dragend', function(e) {
           that.updatePosition({
             latLng: e.target.getLatLng(),
@@ -240,7 +250,21 @@ class Map extends React.Component {
     } else {
       markersLayer.eachLayer(function(layer) {
         if (layer.options.index === idx) {
-          layer.setTooltipContent(location.title + ', ' + location.description)
+          if (location.title.length > 0) {
+            if (layer.getTooltip()) {
+              layer.setTooltipContent(
+                location.title + ', ' + location.description
+              )
+            } else {
+              layer
+                .bindTooltip(location.title + ', ' + location.description, {
+                  permanent: false
+                })
+                .openTooltip()
+            }
+          } else {
+            layer.unbindTooltip()
+          }
         }
       })
     }

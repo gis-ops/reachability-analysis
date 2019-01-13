@@ -1,9 +1,10 @@
-import { ZOOM_TO_ISOCHRONES } from '../actions/map'
+import { ZOOM_TO_ISOCHRONES, ZOOM_TO_POINT } from '../actions/map'
 
 const initialState = {
   event: null,
   controlIdx: null,
-  receivedAt: null
+  receivedAt: null,
+  latLng: null
 }
 
 const mapEvents = (state = initialState, action) => {
@@ -14,6 +15,13 @@ const mapEvents = (state = initialState, action) => {
         ...state,
         event: action.type,
         controlIndex: action.controlIndex,
+        receivedAt: action.receivedAt
+      }
+    case ZOOM_TO_POINT:
+      return {
+        ...state,
+        event: action.type,
+        latLng: action.latLng,
         receivedAt: action.receivedAt
       }
     default:

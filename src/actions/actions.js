@@ -1,5 +1,6 @@
 import { hereConfig } from '../hereConfig'
 import SettingsObject from '../Controls/SettingsObject'
+import { zoomToIsochrones } from './map'
 
 export const REQUEST_GEOCODE_RESULTS = 'REQUEST_GEOCODE_RESULTS'
 export const REQUEST_ISOCHRONES_RESULTS = 'REQUEST_ISOCHRONES_RESULTS'
@@ -12,6 +13,7 @@ export const UPDATE_SELECTED_ADDRESS = 'UPDATE_SELECTED_ADDRESS'
 export const REMOVE_ISOCHRONES_CONTROL = 'REMOVE_ISOCHRONES_CONTROL'
 export const UPDATE_SETTINGS = 'UPDATE_SETTINGS'
 export const RECEIVE_ISOCHRONES_RESULTS = 'RECEIVE_ISOCHRONES_RESULTS'
+export const RESULT_HANDLER = 'RESULT_HANDLER'
 
 const parseGeocodeResponse = (json, latLng) => {
   if (json.Response && json.Response.View.length > 0) {
@@ -37,7 +39,18 @@ const parseGeocodeResponse = (json, latLng) => {
     return processedResults
   }
 
-  return []
+  // if not addresses are found return without coordinates
+  return [
+    {
+      title: '',
+      description: '',
+      displayposition: {
+        lat: latLng.lat,
+        lng: latLng.lng
+      },
+      selected: false
+    }
+  ]
 }
 
 const parseIsochronesResponse = json => {
@@ -45,65 +58,76 @@ const parseIsochronesResponse = json => {
     const isolinesReversed = json.response.isoline.reverse()
     return isolinesReversed
   }
-
   return []
 }
 
-export const receiveGeocodeResults = (controlIndex, json) => ({
+const processIsochronesResponse = (json, controlIndex) => dispatch => {
+  const results = parseIsochronesResponse(json)
+
+  if (results.length == 0) {
+    dispatch(
+      resultHandler({
+        handlerCode: 'NO_ISOCHRONES_RESULTS'
+      })
+    )
+  }
+  dispatch(receiveIsochronesResults(controlIndex, results))
+  if (results.length > 0) dispatch(zoomToIsochrones(controlIndex))
+}
+
+const processGeocodeResponse = (
+  json,
+  controlIndex,
+  latLng = false,
+  reverse = false
+) => dispatch => {
+  const results = parseGeocodeResponse(json, latLng)
+
+  // if no address can be found
+  if (results[0].title.length == 0) {
+    dispatch(
+      resultHandler({
+        handlerCode: 'NO_GEOCODE_RESULTS'
+      })
+    )
+  }
+  dispatch(receiveGeocodeResults(controlIndex, results, reverse))
+  if (reverse) dispatch(setReverseGeocodeResult(controlIndex, results))
+}
+
+export const receiveGeocodeResults = (controlIndex, results, reverse) => ({
   type: RECEIVE_GEOCODE_RESULTS,
   controlIndex,
-  results: parseGeocodeResponse(json),
+  results: results,
   receivedAt: Date.now(),
-  reverse: false
+  reverse: reverse
 })
 
-export const receiveIsochronesResults = (controlIndex, json) => ({
+export const receiveIsochronesResults = (controlIndex, results) => ({
   type: RECEIVE_ISOCHRONES_RESULTS,
   controlIndex,
-  results: parseIsochronesResponse(json),
+  results: results,
   receivedAt: Date.now(),
   reverse: false
 })
 
-const receiveReverseGeocodeResults = (
-  controlIndex,
-  json,
-  latLng,
-  preFetch = false
-) => ({
-  type: RECEIVE_REVERSE_GEOCODE_RESULTS,
-  controlIndex,
-  results: preFetch
-    ? [
-        {
-          title: [json.lat, json.lng].join(','),
-          description: '',
-          DisplayPosition: {
-            lat: json.lat,
-            lng: json.lng
-          },
-          selected: true
-        }
-      ]
-    : parseGeocodeResponse(json, latLng),
-  receivedAt: Date.now(),
-  reverse: true
-})
+const setReverseGeocodeResult = (controlIndex, results) => dispatch => {
+  if (results[0]) {
+    dispatch(
+      updateTextInput({
+        controlIndex: controlIndex,
+        inputValue: results[0] ? results[0].title : ''
+      })
+    )
 
-const setReverseGeocodeResult = (controlIndex, action) => dispatch => {
-  dispatch(
-    updateTextInput({
-      controlIndex: controlIndex,
-      inputValue: action.results[0].title
-    })
-  )
-
-  dispatch(
-    updateSelectedAddress({
-      controlIndex: controlIndex,
-      inputValue: action.results[0].title
-    })
-  )
+    dispatch(
+      updateSelectedAddress({
+        controlIndex: controlIndex,
+        inputValue: results[0] ? results[0].title : ''
+      })
+    )
+    //dispatch(zoomToPoint(action.results[0].displayposition))
+  }
 }
 
 const processIsolineSettings = (settings, center) => {
@@ -144,7 +168,7 @@ const processIsolineSettings = (settings, center) => {
 }
 
 export const fetchHereGeocode = payload => dispatch => {
-  dispatch(requestGeocodeResults(payload.controlIndex))
+  dispatch(requestGeocodeResults({ controlIndex: payload.controlIndex }))
 
   let url = new URL('https://geocoder.api.here.com/6.2/geocode.json'),
     params = {
@@ -157,7 +181,7 @@ export const fetchHereGeocode = payload => dispatch => {
 
   return fetch(url)
     .then(response => response.json())
-    .then(json => dispatch(receiveGeocodeResults(payload.controlIndex, json)))
+    .then(json => dispatch(processGeocodeResponse(json, payload.controlIndex)))
 }
 
 export const fetchHereIsochrones = payload => dispatch => {
@@ -182,21 +206,14 @@ export const fetchHereIsochrones = payload => dispatch => {
   return fetch(url)
     .then(response => response.json())
     .then(json =>
-      dispatch(receiveIsochronesResults(payload.controlIndex, json))
+      dispatch(processIsochronesResponse(json, payload.controlIndex))
     )
 }
 
 export const fetchHereReverseGeocode = payload => dispatch => {
-  // fake response
   dispatch(
-    receiveReverseGeocodeResults(
-      payload.isoIndex,
-      { lat: payload.lat, lng: payload.lng },
-      true
-    )
+    requestGeocodeResults({ controlIndex: payload.isoIndex, reverse: true })
   )
-
-  dispatch(requestGeocodeResults(payload.isoIndex))
 
   const radius = 250
 
@@ -217,13 +234,17 @@ export const fetchHereReverseGeocode = payload => dispatch => {
     .then(response => response.json())
     .then(json =>
       dispatch(
-        receiveReverseGeocodeResults(payload.isoIndex, json, {
-          lat: payload.lat,
-          lng: payload.lng
-        })
+        processGeocodeResponse(
+          json,
+          payload.isoIndex,
+          {
+            lat: payload.lat,
+            lng: payload.lng
+          },
+          true
+        )
       )
     )
-    .then(action => dispatch(setReverseGeocodeResult(payload.isoIndex, action)))
 }
 
 export const requestIsochronesResults = controlIndex => ({
@@ -231,9 +252,9 @@ export const requestIsochronesResults = controlIndex => ({
   controlIndex
 })
 
-export const requestGeocodeResults = controlIndex => ({
+export const requestGeocodeResults = payload => ({
   type: REQUEST_GEOCODE_RESULTS,
-  controlIndex
+  ...payload
 })
 
 export const addIsochronesControl = () => ({
@@ -259,4 +280,10 @@ export const updateSelectedAddress = textInputIndex => ({
 export const updateSettings = payload => ({
   type: UPDATE_SETTINGS,
   payload: payload
+})
+
+export const resultHandler = payload => ({
+  type: RESULT_HANDLER,
+  handlerCode: payload.handlerCode,
+  receivedAt: Date.now()
 })
