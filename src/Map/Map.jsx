@@ -110,6 +110,24 @@ class Map extends React.Component {
     }
   }
 
+  getTooltipContent(settings, isochrone) {
+
+    const content = []
+
+    settings.rangetype === 'time'
+                ? content.push(isochrone.range / 60 + ' minutes')
+                : content.push(isochrone.range / 1000 + ' kilometers')
+
+
+    content.push(settings.mode)
+
+    content.push(settings.rangetype)
+    
+    return content
+
+
+  }
+
   updateIsochrones(prevProps) {
     const { isochronesControls } = this.props
 
@@ -128,13 +146,13 @@ class Map extends React.Component {
           .mode('hsl')
           .colors(isochronesControls[i].isochrones.results.length)
 
+        const { settings } = isochronesControls[i]
+
         for (const isochrone of isochroneResultsReversed) {
           for (const isochroneComponent of isochrone.component) {
             this.addIsochrones(
               isochroneComponent.shape,
-              isochronesControls[i].settings.rangetype === 'time'
-                ? isochrone.range / 60 + ' minutes'
-                : isochrone.range / 1000 + ' kilometers',
+              this.getTooltipContent(settings, isochrone).join(","),
               scaleHsl[cnt],
               i
             )
@@ -202,7 +220,7 @@ class Map extends React.Component {
     )
   }
 
-  addIsochrones(geometry, range, color, index) {
+  addIsochrones(geometry, tooltipContent, color, index) {
     L.polygon(
       geometry.map(function(coordString) {
         return coordString.split(',')
@@ -217,7 +235,7 @@ class Map extends React.Component {
       }
     )
       .addTo(isochronesLayer)
-      .bindTooltip('Range: ' + range, { permanent: false, sticky: true })
+      .bindTooltip(tooltipContent, { permanent: false, sticky: true })
   }
   addIsochronesMarker(location, idx, isPresent = false) {
     if (!isPresent) {

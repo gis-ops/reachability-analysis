@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { Segment, Button, Popup } from 'semantic-ui-react'
+import { Segment, Button, Popup, Icon } from 'semantic-ui-react'
 import SearchControl from './SearchControl'
 import { addIsochronesControl } from '../actions/actions'
 
@@ -31,36 +31,24 @@ class Controls extends React.Component {
   }
 
   handleSettings = () => {
-    console.log('open settings')
+    console.log('open settings modal')
+    // singleComponent
+    // resolution
+    // maxPoints
+    // Quality
+    // https://developer.here.com/documentation/routing/topics/resource-calculate-isoline.html
   }
 
   render() {
     const { controls } = this.props
     return (
       <Segment className="flex flex-column" style={segmentStyle}>
-        {/*<div
-          style={{ height: '50px', borderBottom: '2px solid #A333C8' }}
-          className="flex justify-between items-center pa3">
-          <span className="b f4">HERE Isolines App</span>
-          <Popup
-            trigger={
-              <Icon
-                name="setting"
-                size="large"
-                color="black"
-                onClick={this.handleSettings}
-              />
-            }
-            content="Settings"
-            size="mini"
-          />
-        </div>*/}
         <div>
           <div style={{ flex: 1, display: 'flex', minHeight: '0px' }}>
             <div style={{ flex: 1, overflow: 'auto' }}>
               <div
                 style={{
-                  maxHeight: 'calc(100vh - 2vw)',
+                  maxHeight: 'calc(100vh - 7vw)',
                   overflow: 'auto'
                 }}>
                 {controls &&
@@ -88,6 +76,28 @@ class Controls extends React.Component {
                 </div>
               </div>
             </div>
+          </div>
+          <div
+            style={{
+              height: '40px',
+              //borderTop: '1px solid #f7deff',
+              boxShadow: '2px -5px 5px -5px #333',
+              position: 'relative'
+            }}
+            className="flex justify-between items-center pa3">
+            <span className="b f6">HERE Isolines App</span>
+            <Popup
+              trigger={
+                <Button
+                  circular
+                  icon="setting"
+                  size="mini"
+                  onClick={this.handleSettings}
+                />
+              }
+              content="Settings"
+              size="mini"
+            />
           </div>
         </div>
       </Segment>

@@ -44,19 +44,10 @@ class SearchControl extends React.Component {
 
     this.state = {
       isochronesTitle: 'Isochrones -' + (props.controlindex + 1),
-      activeIndex: 0
     }
     this.handleSearchChange = this.handleSearchChange.bind(this)
     this.handleResultSelect = this.handleResultSelect.bind(this)
     this.fetchGeocodeResults = debounce(1000, this.fetchGeocodeResults)
-  }
-
-  handleClick = (e, titleProps) => {
-    const { index } = titleProps
-    const { activeIndex } = this.state
-    const newIndex = activeIndex === index ? -1 : index
-
-    this.setState({ activeIndex: newIndex })
   }
 
   fetchGeocodeResults() {
@@ -265,18 +256,7 @@ class SearchControl extends React.Component {
           />
         </div>
         <Container className="mt2">
-          <Accordion>
-            <Accordion.Title
-              active={this.state.activeIndex === 0}
-              index={0}
-              onClick={this.handleClick}>
-              <Icon name="dropdown" />
-              Settings
-            </Accordion.Title>
-            <Accordion.Content active={this.state.activeIndex === 0}>
-              <Settings controlindex={controlindex} />
-            </Accordion.Content>
-          </Accordion>
+          <Settings controlindex={controlindex} />
         </Container>
       </Segment>
     )
