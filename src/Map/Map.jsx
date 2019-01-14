@@ -6,7 +6,7 @@ import ExtraMarkers from './extraMarkers'
 import HereTileLayer from './hereTileLayer'
 import { fetchHereReverseGeocode } from '../actions/actions'
 import PropTypes from 'prop-types'
-
+import { Label, Icon } from 'semantic-ui-react'
 const style = {
   width: '100%',
   height: '100vh'
@@ -111,21 +111,36 @@ class Map extends React.Component {
   }
 
   getTooltipContent(settings, isochrone) {
+    let travelIcon = 'car'
+    if (settings.mode == 'car') {
+      travelIcon = 'car'
+    } else if (settings.mode == 'truck') {
+      travelIcon = 'truck'
+    } else if (settings.mode == 'pedestrian') {
+      travelIcon = 'male'
+    }
 
-    const content = []
+    let rangeTypeIcon = 'arrows alternate horizontal'
+    if (settings.rangetype == 'time') rangeTypeIcon = 'clock'
 
-    settings.rangetype === 'time'
-                ? content.push(isochrone.range / 60 + ' minutes')
-                : content.push(isochrone.range / 1000 + ' kilometers')
-
-
-    content.push(settings.mode)
-
-    content.push(settings.rangetype)
-    
-    return content
-
-
+    return `<div class="ui list">
+        <div class="item">
+          <i class="${travelIcon} icon"></i>
+          <div class="content">
+            ${settings.mode}
+          </div>
+        </div>
+        <div class="item">
+          <i class="${rangeTypeIcon} icon"></i>
+          <div class="content">
+            ${
+              settings.rangetype === 'time'
+                ? isochrone.range / 60 + ' minutes'
+                : isochrone.range / 1000 + ' kilometers'
+            }
+          </div>
+        </div>
+      </div>`
   }
 
   updateIsochrones(prevProps) {
@@ -152,7 +167,7 @@ class Map extends React.Component {
           for (const isochroneComponent of isochrone.component) {
             this.addIsochrones(
               isochroneComponent.shape,
-              this.getTooltipContent(settings, isochrone).join(","),
+              this.getTooltipContent(settings, isochrone),
               scaleHsl[cnt],
               i
             )
