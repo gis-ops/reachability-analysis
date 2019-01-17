@@ -8,7 +8,6 @@ import {
   Icon,
   Container,
   Popup,
-  Accordion,
   Divider,
   Button
 } from 'semantic-ui-react'
