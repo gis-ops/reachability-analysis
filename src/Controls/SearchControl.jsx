@@ -33,7 +33,8 @@ class SearchControl extends React.Component {
     dispatch: PropTypes.func.isRequired,
     controls: PropTypes.array.isRequired,
     isochronesResults: PropTypes.array,
-    controlindex: PropTypes.number.isRequired
+    controlindex: PropTypes.number.isRequired,
+    hereConfig: PropTypes.object
   }
 
   constructor(props) {
@@ -42,7 +43,7 @@ class SearchControl extends React.Component {
     this.dataChanged = this.dataChanged.bind(this)
 
     this.state = {
-      isochronesTitle: 'Isochrones -' + (props.controlindex + 1),
+      isochronesTitle: 'Isochrones -' + (props.controlindex + 1)
     }
     this.handleSearchChange = this.handleSearchChange.bind(this)
     this.handleResultSelect = this.handleResultSelect.bind(this)
@@ -50,13 +51,16 @@ class SearchControl extends React.Component {
   }
 
   fetchGeocodeResults() {
-    const { dispatch, userTextInput, controlindex } = this.props
-    dispatch(
-      fetchHereGeocode({
-        inputValue: userTextInput,
-        controlIndex: controlindex
-      })
-    )
+    const { dispatch, userTextInput, controlindex, hereConfig } = this.props
+    if (userTextInput.length > 0) {
+      dispatch(
+        fetchHereGeocode({
+          inputValue: userTextInput,
+          controlIndex: controlindex,
+          hereConfig: hereConfig
+        })
+      )
+    }
   }
 
   handleSearchChange = event => {
@@ -104,8 +108,8 @@ class SearchControl extends React.Component {
   }
 
   handleFetchIsochrones = () => {
-    const { dispatch, controlindex, controls } = this.props
-
+    const { dispatch, controlindex, controls, hereConfig } = this.props
+    console.log(hereConfig)
     let displayposition
     for (let result of controls[controlindex].geocodeResults) {
       if (result.selected) displayposition = result.displayposition
@@ -115,7 +119,8 @@ class SearchControl extends React.Component {
       fetchHereIsochrones({
         controlIndex: controlindex,
         settings: controls[controlindex].settings,
-        center: displayposition
+        center: displayposition,
+        hereConfig: hereConfig
       })
     )
   }
@@ -275,6 +280,7 @@ const mapStateToProps = (state, ownProps) => {
     state.isochronesControls.controls[ownProps.controlindex]
       .isFetchingIsochrones
   const controls = state.isochronesControls.controls
+  const hereConfig = state.hereConfig
 
   const mapEvents = state.mapEvents
 
@@ -285,6 +291,7 @@ const mapStateToProps = (state, ownProps) => {
     isFetchingIsochrones,
     controls,
     mapEvents,
+    hereConfig,
     isochronesResults
   }
 }

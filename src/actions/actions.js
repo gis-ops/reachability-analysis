@@ -1,4 +1,4 @@
-import { hereConfig } from '../hereConfig'
+//import hereConfig from '../hereConfig'
 import SettingsObject from '../Controls/SettingsObject'
 import { zoomToIsochrones } from './map'
 
@@ -51,6 +51,38 @@ const parseGeocodeResponse = (json, latLng) => {
       selected: false
     }
   ]
+}
+const catchErrorGeocodeXMLResponse = (err, controlIndex) => dispatch => {
+  const responseDoc = new DOMParser().parseFromString(err, 'application/xml')
+
+  const error = responseDoc.getElementsByTagName('ns2:Error')
+  const subtype = error[0].getAttribute('subtype')
+
+  if (subtype == 'InvalidCredentials') {
+    dispatch(
+      resultHandler({
+        handlerCode: 'INVALID_CREDENTIALS',
+        handlerMessage: responseDoc.getElementsByTagName('Details')[0].innerHTML
+      })
+    )
+  }
+
+  dispatch(receiveGeocodeResults(controlIndex, []))
+}
+
+const catchErrorIsochronesJSONResponse = (err, controlIndex) => dispatch => {
+  
+  console.log(err.response)
+  if (err.response.subtype == 'InvalidInputData') {
+    dispatch(
+      resultHandler({
+        handlerCode: 'INVALID_CREDENTIALS',
+        handlerMessage: err.response.details
+      })
+    )
+  }
+
+  dispatch(receiveIsochronesResults(controlIndex, []))
 }
 
 const parseIsochronesResponse = json => {
@@ -167,21 +199,65 @@ const processIsolineSettings = (settings, center) => {
   return isolineParameters
 }
 
+const handleResponse = response => {
+  let contentType = response.headers.get('content-type')
+  if (contentType.includes('application/json')) {
+    return handleJSONResponse(response)
+  } else if (contentType.includes('application/xml;charset=utf-8')) {
+    return handleXMLResponse(response)
+  } else {
+    // Other response types as necessary. I haven't found a need for them yet though.
+    throw new Error(`Sorry, content-type ${contentType} not supported`)
+  }
+}
+
+const handleJSONResponse = response => {
+  return response.json().then(json => {
+    if (response.ok) {
+      return json
+    } else {
+      return Promise.reject(
+        Object.assign({}, json, {
+          status: response.status,
+          statusText: response.statusText,
+          err: json
+        })
+      )
+    }
+  })
+}
+const handleXMLResponse = response => {
+  return response.text().then(text => {
+    if (response.ok) {
+      return text
+    } else {
+      return Promise.reject({
+        status: response.status,
+        statusText: response.statusText,
+        err: text
+      })
+    }
+  })
+}
+
 export const fetchHereGeocode = payload => dispatch => {
   dispatch(requestGeocodeResults({ controlIndex: payload.controlIndex }))
 
   let url = new URL('https://geocoder.api.here.com/6.2/geocode.json'),
     params = {
-      app_id: hereConfig.appId,
-      app_code: hereConfig.appCode,
+      app_id: payload.hereConfig.appId,
+      app_code: payload.hereConfig.appCode,
       searchtext: payload.inputValue
     }
 
   url.search = new URLSearchParams(params)
 
   return fetch(url)
-    .then(response => response.json())
-    .then(json => dispatch(processGeocodeResponse(json, payload.controlIndex)))
+    .then(handleResponse)
+    .then(data => dispatch(processGeocodeResponse(data, payload.controlIndex)))
+    .catch(error =>
+      dispatch(catchErrorGeocodeXMLResponse(error.err, payload.controlIndex))
+    )
 }
 
 export const fetchHereIsochrones = payload => dispatch => {
@@ -196,17 +272,22 @@ export const fetchHereIsochrones = payload => dispatch => {
       'https://isoline.route.api.here.com/routing/7.2/calculateisoline.json'
     ),
     params = {
-      app_id: hereConfig.appId,
-      app_code: hereConfig.appCode,
+      app_id: payload.hereConfig.appId,
+      app_code: payload.hereConfig.appCode,
       ...isolineParameters
     }
 
   url.search = new URLSearchParams(params)
 
   return fetch(url)
-    .then(response => response.json())
-    .then(json =>
-      dispatch(processIsochronesResponse(json, payload.controlIndex))
+    .then(handleResponse)
+    .then(data =>
+      dispatch(processIsochronesResponse(data, payload.controlIndex))
+    )
+    .catch(error =>
+      dispatch(
+        catchErrorIsochronesJSONResponse(error.err, payload.controlIndex)
+      )
     )
 }
 
@@ -221,8 +302,8 @@ export const fetchHereReverseGeocode = payload => dispatch => {
       'https://reverse.geocoder.api.here.com/6.2/reversegeocode.json'
     ),
     params = {
-      app_id: hereConfig.appId,
-      app_code: hereConfig.appCode,
+      app_id: payload.hereConfig.appId,
+      app_code: payload.hereConfig.appCode,
       mode: 'retrieveAddresses',
       maxresults: 1,
       prox: [payload.lat, payload.lng, radius].join(',')
@@ -231,11 +312,11 @@ export const fetchHereReverseGeocode = payload => dispatch => {
   url.search = new URLSearchParams(params)
 
   return fetch(url)
-    .then(response => response.json())
-    .then(json =>
+    .then(handleResponse)
+    .then(data =>
       dispatch(
         processGeocodeResponse(
-          json,
+          data,
           payload.isoIndex,
           {
             lat: payload.lat,
@@ -244,6 +325,9 @@ export const fetchHereReverseGeocode = payload => dispatch => {
           true
         )
       )
+    )
+    .catch(error =>
+      dispatch(catchErrorGeocodeXMLResponse(error.err, payload.controlIndex))
     )
 }
 
@@ -284,6 +368,6 @@ export const updateSettings = payload => ({
 
 export const resultHandler = payload => ({
   type: RESULT_HANDLER,
-  handlerCode: payload.handlerCode,
-  receivedAt: Date.now()
+  receivedAt: Date.now(),
+  ...payload
 })

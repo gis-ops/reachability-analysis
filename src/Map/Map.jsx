@@ -6,7 +6,6 @@ import ExtraMarkers from './extraMarkers'
 import HereTileLayer from './hereTileLayer'
 import { fetchHereReverseGeocode } from '../actions/actions'
 import PropTypes from 'prop-types'
-import { Label, Icon } from 'semantic-ui-react'
 const style = {
   width: '100%',
   height: '100vh'
@@ -54,6 +53,7 @@ class Map extends React.Component {
   static propTypes = {
     isochronesControls: PropTypes.array.isRequired,
     mapEvents: PropTypes.object,
+    hereConfig: PropTypes.object,
     dispatch: PropTypes.func.isRequired
   }
   componentDidMount() {
@@ -226,10 +226,12 @@ class Map extends React.Component {
   }
 
   updatePosition(obj) {
-    const { dispatch } = this.props
+
+   const { dispatch, hereConfig } = this.props
     dispatch(
       fetchHereReverseGeocode({
         isoIndex: obj.isoIndex,
+        hereConfig: hereConfig,
         ...obj.latLng
       })
     )
@@ -309,12 +311,14 @@ class Map extends React.Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  console.log(state, ownProps)
+  //console.log(state, ownProps)
   const isochronesControls = state.isochronesControls.controls
   const mapEvents = state.mapEvents
+  const hereConfig = state.hereConfig
   return {
     isochronesControls,
-    mapEvents
+    mapEvents,
+    hereConfig
   }
 }
 

@@ -25,6 +25,7 @@
   "globals": {
     "H": true,
     "localStorage": true,
-    "fetch": true
+    "fetch": true,
+    "DOMParser": true
   }
 }

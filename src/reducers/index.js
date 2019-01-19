@@ -14,6 +14,7 @@ import {
 
 import mapEvents from './map'
 import resultHandler from './resulthandler'
+import hereConfig from './hereconfig'
 
 import SettingsObject from '../Controls/SettingsObject'
 
@@ -144,7 +145,8 @@ const isochronesControls = (state = initialIsochronesControlsState, action) => {
 const rootReducer = combineReducers({
   isochronesControls,
   mapEvents,
-  resultHandler
+  resultHandler,
+  hereConfig
 })
 
 export default rootReducer

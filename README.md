@@ -1,10 +1,10 @@
-# [HERE Maps Isolines Routing Web(M)app](https://gis-ops.github.io/here-isolines-app/)
+# [HERE Maps Isoline Routing Web(M)app](https://gis-ops.github.io/here-isolines-app/)
 
-![HERE Isolines Routing in Istanbul](https://user-images.githubusercontent.com/10322094/51332346-df3b0f00-1a7b-11e9-82e6-abd7eb397545.png "HERE Isolines Routing in Istanbul")
+![HERE Isoline Routing in Istanbul](https://user-images.githubusercontent.com/10322094/51332346-df3b0f00-1a7b-11e9-82e6-abd7eb397545.png "HERE Isoline Routing in Istanbul")
 
 *An isochrone map (or chart/diagram) in geography and urban planning is a map showing areas related to isochrones between different points. An isochrone is defined as "a line drawn on a map connecting points at which something occurs or arrives at the same time". Such a map is sometimes termed simply an isochrone (iso = equal, chrone = time) [Wikipedia](https://en.wikipedia.org/wiki/Isochrone_map).*
 
-This application consumes the useful HERE Maps Isolines Routing API to determine areas of reachability from a given point. As a user you have the possibilty to select a magnitude of travelling options, starting from the mode of travel to the specified range and intervals [HERE Maps Isoline Routing Options](https://developer.here.com/documentation/routing/topics/resources.html). 
+This application consumes the useful HERE Maps Isoline Routing API to determine areas of reachability from a given point. As a user you have the possibilty to select a magnitude of travelling options, starting from the mode of travel to the specified range and intervals [HERE Maps Isoline Routing Options](https://developer.here.com/documentation/routing/topics/resources.html). 
 
 **Note:** In order to use this application, please [register a freemium HERE Maps account](https://developer.here.com/?create=Freemium-Basic&keepState=true&step=account) and input your credentials in the app settings.
 
