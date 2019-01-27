@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/here-isolines-app/precache-manifest.10d00af793faf16e9271e3bc288f7cc3.js"
+  "/reachability-analysis/precache-manifest.ee53315f8b02989e3782fe714473dd1e.js"
 );
 
 workbox.clientsClaim();
@@ -28,7 +28,7 @@ self.__precacheManifest = [].concat(self.__precacheManifest || []);
 workbox.precaching.suppressWarnings();
 workbox.precaching.precacheAndRoute(self.__precacheManifest, {});
 
-workbox.routing.registerNavigationRoute("/here-isolines-app/index.html", {
+workbox.routing.registerNavigationRoute("/reachability-analysis/index.html", {
   
   blacklist: [/^\/_/,/\/[^\/]+\.[^\/]+$/],
 });
