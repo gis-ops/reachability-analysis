@@ -54,7 +54,8 @@ class Settings extends React.Component {
 
     this.state = {
       activeIndex: 0,
-      timeEnabled: false
+      timeEnabled: false,
+      apiMessageVisible: true
     }
   }
 
@@ -76,6 +77,10 @@ class Settings extends React.Component {
         settings: controls[controlindex].settings
       })
     )
+  }
+
+  handleDismiss = () => {
+    this.setState({ apiMessageVisible: false })
   }
 
   handleClickAccordion = (e, titleProps) => {
@@ -288,15 +293,18 @@ class Settings extends React.Component {
 
     return (
       <div className="mt3">
-        <Message info>
-          <p>
-            For further reading about the settings, please browse to the &nbsp;
-            <a href="https://developer.here.com/documentation/routing/topics/resource-calculate-isoline.html">
-              HERE API documentation
-            </a>
-            .
-          </p>
-        </Message>
+        {this.state.apiMessageVisible && (
+          <Message info onDismiss={this.handleDismiss}>
+            <p>
+              For further reading about the settings, please browse to the
+              &nbsp;
+              <a href="https://developer.here.com/documentation/routing/topics/resource-calculate-isoline.html">
+                HERE API documentation
+              </a>
+              .
+            </p>
+          </Message>
+        )}
         <Accordion>
           <Accordion.Title
             active={this.state.activeIndex === 1}
@@ -392,7 +400,6 @@ class Settings extends React.Component {
                         <div>
                           <Button.Group basic size="mini">
                             <Button
-                              
                               active={
                                 controls[controlindex].settings.direction ==
                                 'destination'
@@ -401,7 +408,6 @@ class Settings extends React.Component {
                               {'arrival'}
                             </Button>
                             <Button
-                              
                               active={
                                 controls[controlindex].settings.direction ==
                                 'start'
