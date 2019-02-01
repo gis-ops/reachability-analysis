@@ -49,12 +49,12 @@ class Controls extends React.Component {
 
   handleAppIdChange = event => {
     const { dispatch } = this.props
-    dispatch(setAppId( event.target.value ))
+    dispatch(setAppId(event.target.value))
   }
 
   handleAppCodeChange = event => {
     const { dispatch } = this.props
-    dispatch(setAppCode( event.target.value ))
+    dispatch(setAppCode(event.target.value))
   }
 
   render() {
@@ -106,7 +106,15 @@ class Controls extends React.Component {
                 position: 'relative'
               }}
               className="flex justify-between items-center pa3">
-              <span className="b f6">HERE Maps Isoline Routing App</span>
+              <span className="b f6">
+                Reachability analysis powered by{' '}
+                <a
+                  href="https://developer.here.com/"
+                  rel="noopener noreferrer"
+                  target="_blank">
+                  HERE Maps
+                </a>
+              </span>
               <Popup
                 trigger={
                   <Button

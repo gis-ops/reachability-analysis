@@ -71,7 +71,6 @@ const catchErrorGeocodeXMLResponse = (err, controlIndex) => dispatch => {
 }
 
 const catchErrorIsochronesJSONResponse = (err, controlIndex) => dispatch => {
-  
   console.log(err.response)
   if (err.response.subtype == 'InvalidInputData') {
     dispatch(
@@ -163,11 +162,32 @@ const setReverseGeocodeResult = (controlIndex, results) => dispatch => {
 }
 
 const processIsolineSettings = (settings, center) => {
-  const isolineParameters = {}
+  let isolineParameters = {}
 
-  isolineParameters.start = center.lat + ',' + center.lng
-  isolineParameters.mode = 'fastest;' + settings.mode
+  if (settings.direction == 'start') {
+    isolineParameters.start = center.lat + ',' + center.lng
+    if (settings.timeEnabled) {
+      if (settings.timeVal) isolineParameters['departure'] = settings.timeVal
+    }
+  } else if (settings.direction == 'destination') {
+    isolineParameters.destination = center.lat + ',' + center.lng
+    if (settings.timeEnabled) {
+      if (settings.timeVal) isolineParameters['arrival'] = settings.timeVal
+    }
+  }
+  isolineParameters.mode =
+    'fastest;' + settings.mode + ';' + 'traffic:' + settings.traffic + ';'
   isolineParameters.rangetype = settings.rangetype
+
+  if (settings.mode == 'truck') {
+    if (settings.enableHgvSettings) {
+      isolineParameters = Object.assign(settings.hgv, isolineParameters)
+      isolineParameters.shippedHazardousGoods = settings.hgv.shippedHazardousGoods.join(
+        ','
+      )
+      isolineParameters.tunnelCategory = settings.hgv.tunnelCategory
+    }
+  }
 
   // seconds
   const ranges = []

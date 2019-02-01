@@ -22,7 +22,20 @@ export default class SettingsObject {
         value: 10
       },
       mode: 'car',
-      rangetype: 'distance'
+      rangetype: 'distance',
+      direction: 'start',
+      traffic: 'disabled',
+      timeEnabled: false,
+      hgv: {
+        height: 5,
+        weight: 100,
+        width: 5,
+        length: 20,
+        weightPerAxle: 50,
+        trailersCount: 0,
+        shippedHazardousGoods: [],
+        tunnelCategory: ''
+      }
     }
   }
 }

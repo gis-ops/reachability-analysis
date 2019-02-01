@@ -8,14 +8,19 @@ import {
   Button,
   Divider,
   Accordion,
-  Icon
+  Icon,
+  Checkbox,
+  Form,
+  Radio,
+  Message
 } from 'semantic-ui-react'
 import { updateSettings } from '../actions/actions'
+import moment from 'moment'
+import DatetimePicker from 'react-semantic-datetime'
 
 const transportModes = {
   pedestrian: {
-    type: ['fastest', 'shortest'],
-    traffic: ['enabled', 'disabled']
+    type: ['fastest', 'shortest']
   },
   car: {
     type: ['fastest', 'shortest', 'traffic'],
@@ -25,13 +30,14 @@ const transportModes = {
   },
   truck: {
     type: ['fastest'],
+    traffic: ['enabled', 'disabled'],
     shippedHazardousGoods: [],
     limitedWeight: {},
     weightPerAxle: {},
     height: {},
     width: {},
     length: {},
-    tunnelCategory: [],
+    tunnelCategory: '',
     consumptionModel: ['default', 'standard'],
     customConsumptionDetails: {}
   }
@@ -47,7 +53,8 @@ class Settings extends React.Component {
     super(props)
 
     this.state = {
-      activeIndex: 0
+      activeIndex: 0,
+      timeEnabled: false
     }
   }
 
@@ -87,10 +94,96 @@ class Settings extends React.Component {
     this.updateSettings()
   }
 
+  handleClickDirection(direction) {
+    const { controls, controlindex } = this.props
+
+    controls[controlindex].settings.direction = direction
+
+    this.updateSettings()
+  }
+
+  handleClickTraffic(traffic) {
+    const { controls, controlindex } = this.props
+
+    controls[controlindex].settings.traffic = traffic
+
+    this.updateSettings()
+  }
+
+  handleClickTimeValue(timeVal) {
+    const { controls, controlindex } = this.props
+
+    controls[controlindex].settings.timeVal = timeVal
+
+    this.updateSettings()
+  }
+
   handleRangetype(rangetype) {
     const { controls, controlindex } = this.props
 
     controls[controlindex].settings.rangetype = rangetype
+
+    this.updateSettings()
+  }
+
+  handleHazardousGoods(e, { value }) {
+    console.log(value)
+    const { controls, controlindex } = this.props
+
+    const indexOfVal = controls[
+      controlindex
+    ].settings.hgv.shippedHazardousGoods.indexOf(value)
+    if (indexOfVal > -1) {
+      controls[controlindex].settings.hgv.shippedHazardousGoods.splice(
+        indexOfVal,
+        1
+      )
+    } else {
+      controls[controlindex].settings.hgv.shippedHazardousGoods.push(value)
+    }
+
+    this.updateSettings()
+  }
+
+  handleTunnelCategory(e, { value }) {
+    const { controls, controlindex } = this.props
+
+    const currentTunnelCat = controls[controlindex].settings.hgv.tunnelCategory
+    controls[controlindex].settings.hgv.tunnelCategory =
+      value == currentTunnelCat ? '' : value
+
+    this.updateSettings()
+  }
+
+  clearTunnelCategory() {
+    const { controls, controlindex } = this.props
+
+    controls[controlindex].settings.hgv.tunnelCategory = ''
+    this.updateSettings()
+  }
+
+  handleEnableTime() {
+    const { controls, controlindex } = this.props
+
+    controls[controlindex].settings.timeEnabled = !controls[controlindex]
+      .settings.timeEnabled
+
+    this.updateSettings()
+  }
+
+  handleEnableHgvSettings() {
+    const { controls, controlindex } = this.props
+
+    controls[controlindex].settings.enableHgvSettings = !controls[controlindex]
+      .settings.enableHgvSettings
+
+    this.updateSettings()
+  }
+
+  handleHgvSetting(type, value) {
+    const { controls, controlindex } = this.props
+
+    controls[controlindex].settings.hgv[type] = value
 
     this.updateSettings()
   }
@@ -162,8 +255,48 @@ class Settings extends React.Component {
       }
     }
 
+    const CheckBoxHazardous = ({ ...props }) => {
+      return (
+        <Checkbox
+          value={props.name}
+          label={props.name}
+          className="pr3 pb2"
+          onChange={this.handleHazardousGoods.bind(this)}
+          checked={
+            controls[controlindex].settings.hgv.shippedHazardousGoods.indexOf(
+              props.name
+            ) > -1
+          }
+        />
+      )
+    }
+
+    const RadioTunnelCategory = ({ ...props }) => {
+      return (
+        <Radio
+          value={props.name}
+          label={props.name}
+          name="tunnelCategory"
+          className="pr3 pb2"
+          onChange={this.handleTunnelCategory.bind(this)}
+          checked={
+            controls[controlindex].settings.hgv.tunnelCategory == props.name
+          }
+        />
+      )
+    }
+
     return (
-      <div>
+      <div className="mt3">
+        <Message info>
+          <p>
+            For further reading about the settings, please browse to the &nbsp;
+            <a href="https://developer.here.com/documentation/routing/topics/resource-calculate-isoline.html">
+              HERE API documentation
+            </a>
+            .
+          </p>
+        </Message>
         <Accordion>
           <Accordion.Title
             active={this.state.activeIndex === 1}
@@ -176,28 +309,358 @@ class Settings extends React.Component {
           </Accordion.Title>
           <Accordion.Content active={this.state.activeIndex === 1}>
             <div className="mt3">
-              <Button.Group basic size="small">
-                {transportModes &&
-                  Object.keys(transportModes).map((key, i) => (
+              <div>
+                <Button.Group basic size="small">
+                  {transportModes &&
+                    Object.keys(transportModes).map((key, i) => (
+                      <Button
+                        active={key === controls[controlindex].settings.mode}
+                        key={i}
+                        mode={key}
+                        onClick={() => this.handleClickMode(key)}>
+                        {key}
+                      </Button>
+                    ))}
+                </Button.Group>
+              </div>
+              <Divider />
+              <div>
+                <Label size="small">{'Start | destination'}</Label>
+                <div className="mt3">
+                  <Button.Group basic size="small">
                     <Button
-                      active={key === controls[controlindex].settings.mode}
-                      key={i}
-                      mode={key}
-                      onClick={() => this.handleClickMode(key)}>
-                      {key}
+                      active={
+                        controls[controlindex].settings.direction == 'start'
+                      }
+                      key={'start'}
+                      onClick={() => this.handleClickDirection('start')}>
+                      {'start'}
                     </Button>
-                  ))}
-              </Button.Group>
-              {/*
-                - Start/destination
-                - HGV settings 
-                (trailersCount, shippedHazardousGoods, limitedWeight,
-                weightPerAxle, height, width, weight, length, tunnelCatetory)
-                - Traffic true/false
-                - Departure/arrival
-                - TruckType?
-                - consumptionModel? customConsumptionDetails?
-              */}
+                    <Button
+                      active={
+                        controls[controlindex].settings.direction ==
+                        'destination'
+                      }
+                      key={'destination'}
+                      onClick={() => this.handleClickDirection('destination')}>
+                      {'destination'}
+                    </Button>
+                  </Button.Group>
+                </div>
+              </div>
+              {(controls[controlindex].settings.mode == 'truck' ||
+                controls[controlindex].settings.mode == 'car') && (
+                <div>
+                  <Divider />
+                  <div>
+                    <Label size="small">{'Traffic'}</Label>
+                    <div className="mt3">
+                      <Button.Group basic size="small">
+                        <Button
+                          active={
+                            controls[controlindex].settings.traffic == 'enabled'
+                          }
+                          key={'enabled'}
+                          onClick={() => this.handleClickTraffic('enabled')}>
+                          {'enabled'}
+                        </Button>
+                        <Button
+                          active={
+                            controls[controlindex].settings.traffic ==
+                            'disabled'
+                          }
+                          key={'disabled'}
+                          onClick={() => this.handleClickTraffic('disabled')}>
+                          {'disabled'}
+                        </Button>
+                      </Button.Group>
+                    </div>
+                  </div>
+                  <Divider />
+                  <div>
+                    <Label size="small">{'Departure | arrival'}</Label>
+                    <div className="mt3">
+                      <div>
+                        <Checkbox
+                          slider
+                          onChange={() => {
+                            this.handleEnableTime()
+                          }}
+                        />
+                      </div>
+                      {controls[controlindex].settings.timeEnabled && (
+                        <div>
+                          <Button.Group basic size="mini">
+                            <Button
+                              
+                              active={
+                                controls[controlindex].settings.direction ==
+                                'destination'
+                              }
+                              disabled>
+                              {'arrival'}
+                            </Button>
+                            <Button
+                              
+                              active={
+                                controls[controlindex].settings.direction ==
+                                'start'
+                              }
+                              disabled>
+                              {'departure'}
+                            </Button>
+                          </Button.Group>
+                          <div className="mt3">
+                            <Form.Input
+                              action={{ color: 'purple', icon: 'calendar' }}
+                              actionPosition="left"
+                              value={moment(
+                                controls[controlindex].settings.timeVal
+                              ).format('LLL')}
+                              fluid
+                            />
+                            <DatetimePicker
+                              color="purple" // optional (default:teal)
+                              onChange={value => {
+                                this.handleClickTimeValue(value.toISOString())
+                              }} // Mandatory
+                              value={moment(
+                                controls[controlindex].settings.timeVal
+                              )} // Mandatory
+                              time={true} // optional to show time selection, just a date picket if false (default:true)
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+              {controls[controlindex].settings.mode == 'truck' && (
+                <div>
+                  <Divider />
+                  <Label size="small">{'HGV Settings'}</Label>
+                  <div className="mt3">
+                    <div>
+                      <Checkbox
+                        slider
+                        onChange={() => {
+                          this.handleEnableHgvSettings()
+                        }}
+                      />
+                    </div>
+                  </div>
+                  {controls[controlindex].settings.enableHgvSettings && (
+                    <div>
+                      <div>
+                        <Label size="small">{'Height (meters)'}</Label>
+                        <div className="mt3">
+                          <Slider
+                            discrete
+                            color="grey"
+                            value={controls[controlindex].settings.hgv.height}
+                            inverted={false}
+                            settings={{
+                              start: controls[controlindex].settings.hgv.height,
+                              min: 0,
+                              max: 50,
+                              step: 1,
+                              onChange: value => {
+                                this.handleHgvSetting('height', value)
+                              }
+                            }}
+                          />
+                          <div className="mt2">
+                            <Label className="mt2" color="grey" size={'mini'}>
+                              {controls[controlindex].settings.hgv.height}
+                            </Label>
+                          </div>
+                        </div>
+                      </div>
+                      <Divider />
+                      <div>
+                        <Label size="small">{'Width (meters)'}</Label>
+                        <div className="mt3">
+                          <Slider
+                            discrete
+                            color="grey"
+                            value={controls[controlindex].settings.hgv.width}
+                            inverted={false}
+                            settings={{
+                              start: controls[controlindex].settings.hgv.width,
+                              min: 0,
+                              max: 50,
+                              step: 1,
+                              onChange: value => {
+                                this.handleHgvSetting('width', value)
+                              }
+                            }}
+                          />
+                          <div className="mt2">
+                            <Label className="mt2" color="grey" size={'mini'}>
+                              {controls[controlindex].settings.hgv.height}
+                            </Label>
+                          </div>
+                        </div>
+                      </div>
+                      <Divider />
+                      <div>
+                        <Label size="small">{'Length (meters)'}</Label>
+                        <div className="mt3">
+                          <Slider
+                            discrete
+                            color="grey"
+                            value={controls[controlindex].settings.hgv.length}
+                            inverted={false}
+                            settings={{
+                              start: controls[controlindex].settings.hgv.length,
+                              min: 0,
+                              max: 300,
+                              step: 1,
+                              onChange: value => {
+                                this.handleHgvSetting('length', value)
+                              }
+                            }}
+                          />
+                          <div className="mt2">
+                            <Label className="mt2" color="grey" size={'mini'}>
+                              {controls[controlindex].settings.hgv.length}
+                            </Label>
+                          </div>
+                        </div>
+                      </div>
+                      <Divider />
+                      <div>
+                        <Label size="small">{'Weight (tons)'}</Label>
+                        <div className="mt3">
+                          <Slider
+                            discrete
+                            color="grey"
+                            value={controls[controlindex].settings.hgv.weight}
+                            inverted={false}
+                            settings={{
+                              start: controls[controlindex].settings.hgv.weight,
+                              min: 0,
+                              max: 1000,
+                              step: 10,
+                              onChange: value => {
+                                this.handleHgvSetting('weight', value)
+                              }
+                            }}
+                          />
+                          <div className="mt2">
+                            <Label className="mt2" color="grey" size={'mini'}>
+                              {controls[controlindex].settings.hgv.weight}
+                            </Label>
+                          </div>
+                        </div>
+                      </div>
+                      <Divider />
+                      <div>
+                        <Label size="small">{'Weight per axle (tons)'}</Label>
+                        <div className="mt3">
+                          <Slider
+                            discrete
+                            color="grey"
+                            value={
+                              controls[controlindex].settings.hgv.weightPerAxle
+                            }
+                            inverted={false}
+                            settings={{
+                              start:
+                                controls[controlindex].settings.hgv
+                                  .weightPerAxle,
+                              min: 0,
+                              max: 1000,
+                              step: 10,
+                              onChange: value => {
+                                this.handleHgvSetting('weightPerAxle', value)
+                              }
+                            }}
+                          />
+                          <div className="mt2">
+                            <Label className="mt2" color="grey" size={'mini'}>
+                              {
+                                controls[controlindex].settings.hgv
+                                  .weightPerAxle
+                              }
+                            </Label>
+                          </div>
+                        </div>
+                      </div>
+                      <Divider />
+                      <div>
+                        <Label size="small">{'Trailers count'}</Label>
+                        <div className="mt3">
+                          <Slider
+                            discrete
+                            color="grey"
+                            value={
+                              controls[controlindex].settings.hgv.trailersCount
+                            }
+                            inverted={false}
+                            settings={{
+                              start:
+                                controls[controlindex].settings.hgv
+                                  .trailersCount,
+                              min: 0,
+                              max: 4,
+                              step: 1,
+                              onChange: value => {
+                                this.handleHgvSetting('trailersCount', value)
+                              }
+                            }}
+                          />
+                          <div className="mt2">
+                            <div className="mt2">
+                              <Label className="mt2" color="grey" size={'mini'}>
+                                {
+                                  controls[controlindex].settings.hgv
+                                    .trailersCount
+                                }
+                              </Label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <Divider />
+                      <div>
+                        <Label size="small">{'Hazardous Goods'}</Label>
+                        <div className="mt3">
+                          <CheckBoxHazardous name="explosive" />
+                          <CheckBoxHazardous name="gas" />
+                          <CheckBoxHazardous name="flammable" />
+                          <CheckBoxHazardous name="combustible" />
+                          <CheckBoxHazardous name="organic" />
+                          <CheckBoxHazardous name="poison" />
+                          <CheckBoxHazardous name="radioActive" />
+                          <CheckBoxHazardous name="corrosive" />
+                          <CheckBoxHazardous name="poisonousInhalation" />
+                          <CheckBoxHazardous name="harmfulToWater" />
+                          <CheckBoxHazardous name="other" />
+                        </div>
+                      </div>
+                      <Divider />
+                      <div>
+                        <Label size="small">{'Tunnel category'}</Label>
+                        <div className="mt3">
+                          <RadioTunnelCategory name="B" />
+                          <RadioTunnelCategory name="C" />
+                          <RadioTunnelCategory name="D" />
+                          <RadioTunnelCategory name="E" />
+                          <Button
+                            basic
+                            size="mini"
+                            onClick={() => this.clearTunnelCategory()}>
+                            {'Clear'}
+                          </Button>
+                        </div>
+                      </div>
+                      <Divider />
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </Accordion.Content>
           <Accordion.Title

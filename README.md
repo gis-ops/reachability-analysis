@@ -1,4 +1,4 @@
-# [HERE Maps Isoline Routing Web(M)app](https://gis-ops.github.io/here-isolines-app/)
+# [Reachability Analysis Web(M)app powered by HERE Maps](https://gis-ops.github.io/reachability-analysis/)
 
 ![HERE Isoline Routing in Istanbul](https://user-images.githubusercontent.com/10322094/51332346-df3b0f00-1a7b-11e9-82e6-abd7eb397545.png "HERE Isoline Routing in Istanbul")
 
@@ -15,6 +15,10 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 ## Available Scripts
 
 In the project directory, you can run:
+
+### `npm install`
+
+Install all dependencies of the project.
 
 ### `npm start`
 
