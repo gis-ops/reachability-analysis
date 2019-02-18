@@ -1,8 +1,8 @@
 import { SET_APP_ID, SET_APP_CODE } from '../actions/hereconfig'
 
 const initialState = {
-  appId: 'jKco7gLGf0WWlvS5n2fl',
-  appCode: 'HQnCztY23zh2xiTPCFiTMA'
+  appId: 'yATlKFDZwdLtjHzyTeCK',
+  appCode: '0XXQyxbiCjVU7jN2URXuhg'
 }
 
 console.log(SET_APP_ID, SET_APP_CODE)
@@ -11,7 +11,7 @@ const hereConfig = (state = initialState, action) => {
   console.log(action)
   switch (action.type) {
     case SET_APP_ID:
-          console.log(action.type, action)
+      console.log(action.type, action)
 
       return {
         ...state,
