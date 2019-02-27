@@ -26,6 +26,7 @@
     "H": true,
     "localStorage": true,
     "fetch": true,
+    "Blob": true,
     "DOMParser": true
   }
 }

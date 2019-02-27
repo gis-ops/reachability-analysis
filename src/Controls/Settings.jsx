@@ -299,7 +299,14 @@ class Settings extends React.Component {
               For further reading about the settings, please browse to the
               &nbsp;
               <a href="https://developer.here.com/documentation/routing/topics/resource-calculate-isoline.html">
-                HERE API documentation
+                HERE Maps documentation
+              </a>
+              .
+              <br />
+              <br />
+              By downloading the isochrones you agree to{' '}
+              <a href="https://legal.here.com/en-gb/terms">
+                HERE Maps Terms and Conditions
               </a>
               .
             </p>

@@ -19,7 +19,12 @@ import {
   fetchHereIsochrones
 } from '../actions/actions'
 
-import { zoomToPoint, zoomToIsochrones, toggleIsochrones, downloadIsochrones } from '../actions/map'
+import {
+  zoomToPoint,
+  zoomToIsochrones,
+  toggleIsochrones,
+  downloadIsochrones
+} from '../actions/map'
 
 import InlineEdit from 'react-edit-inline2'
 import { debounce } from 'throttle-debounce'
@@ -109,7 +114,6 @@ class SearchControl extends React.Component {
 
   handleFetchIsochrones = () => {
     const { dispatch, controlindex, controls, hereConfig } = this.props
-    console.log(hereConfig)
     let displayposition
     for (let result of controls[controlindex].geocodeResults) {
       if (result.selected) displayposition = result.displayposition
@@ -136,10 +140,8 @@ class SearchControl extends React.Component {
   }
 
   handleDownload = () => {
-
     const { dispatch, controlindex } = this.props
     dispatch(downloadIsochrones(controlindex))
-
   }
 
   render() {
@@ -208,7 +210,7 @@ class SearchControl extends React.Component {
                   className="pr3"
                 />
               }
-              content="Download polygons"
+              content="Download isochrones"
               size="mini"
             />
           )}
