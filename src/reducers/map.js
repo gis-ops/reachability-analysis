@@ -1,4 +1,9 @@
-import { ZOOM_TO_ISOCHRONES, ZOOM_TO_POINT } from '../actions/map'
+import {
+  ZOOM_TO_ISOCHRONES,
+  ZOOM_TO_POINT,
+  TOGGLE_ISOCHRONES,
+  DOWNLOAD_ISOCHRONES
+} from '../actions/map'
 
 const initialState = {
   event: null,
@@ -11,6 +16,20 @@ const mapEvents = (state = initialState, action) => {
   console.log(action)
   switch (action.type) {
     case ZOOM_TO_ISOCHRONES:
+      return {
+        ...state,
+        event: action.type,
+        controlIndex: action.controlIndex,
+        receivedAt: action.receivedAt
+      }
+    case TOGGLE_ISOCHRONES:
+      return {
+        ...state,
+        event: action.type,
+        controlIndex: action.controlIndex,
+        receivedAt: action.receivedAt
+      }
+    case DOWNLOAD_ISOCHRONES:
       return {
         ...state,
         event: action.type,

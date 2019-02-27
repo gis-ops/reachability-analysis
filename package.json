@@ -6,6 +6,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "chroma-js": "^2.0.2",
+    "file-saver": "^2.0.1",
     "leaflet": "^1.4.0",
     "leaflet-extra-markers": "^1.0.6",
     "prop-types": "^15.6.2",

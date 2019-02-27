@@ -14,6 +14,7 @@ export const REMOVE_ISOCHRONES_CONTROL = 'REMOVE_ISOCHRONES_CONTROL'
 export const UPDATE_SETTINGS = 'UPDATE_SETTINGS'
 export const RECEIVE_ISOCHRONES_RESULTS = 'RECEIVE_ISOCHRONES_RESULTS'
 export const RESULT_HANDLER = 'RESULT_HANDLER'
+export const HIDE_ISOCHRONES_INDEX = 'HIDE_ISOCHRONES_INDEX'
 
 const parseGeocodeResponse = (json, latLng) => {
   if (json.Response && json.Response.View.length > 0) {
@@ -140,6 +141,11 @@ export const receiveIsochronesResults = (controlIndex, results) => ({
   results: results,
   receivedAt: Date.now(),
   reverse: false
+})
+
+export const hideIsochronesIndex = controlIndex => ({
+  type: HIDE_ISOCHRONES_INDEX,
+  controlIndex
 })
 
 const setReverseGeocodeResult = (controlIndex, results) => dispatch => {

@@ -9,7 +9,8 @@ import {
   REMOVE_ISOCHRONES_CONTROL,
   UPDATE_TEXTINPUT,
   UPDATE_SELECTED_ADDRESS,
-  UPDATE_SETTINGS
+  UPDATE_SETTINGS,
+  HIDE_ISOCHRONES_INDEX
 } from '../actions/actions'
 
 import mapEvents from './map'
@@ -43,6 +44,15 @@ const isochronesControls = (state = initialIsochronesControlsState, action) => {
         controls: state.controls.map((control, i) =>
           i === action.payload.controlIndex
             ? { ...control, userInput: action.payload.inputValue }
+            : control
+        )
+      }
+    case HIDE_ISOCHRONES_INDEX:
+      return {
+        ...state,
+        controls: state.controls.map((control, i) =>
+          i === action.controlIndex
+            ? { ...control, isochronesHidden: !control.isochronesHidden }
             : control
         )
       }

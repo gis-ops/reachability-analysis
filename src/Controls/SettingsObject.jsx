@@ -6,6 +6,7 @@ export default class SettingsObject {
       receivedAt: null,
       results: []
     }
+    this.isochronesHidden = false
     this.isFetching = false
     this.isFetchingIsochrones = false
     this.settings = {

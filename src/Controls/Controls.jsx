@@ -59,7 +59,6 @@ class Controls extends React.Component {
 
   render() {
     const { controls, hereConfig } = this.props
-    console.log(hereConfig)
     const { settingsOpen } = this.state
     return (
       <div>

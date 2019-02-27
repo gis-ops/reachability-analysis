@@ -19,7 +19,7 @@ import {
   fetchHereIsochrones
 } from '../actions/actions'
 
-import { zoomToPoint, zoomToIsochrones } from '../actions/map'
+import { zoomToPoint, zoomToIsochrones, toggleIsochrones, downloadIsochrones } from '../actions/map'
 
 import InlineEdit from 'react-edit-inline2'
 import { debounce } from 'throttle-debounce'
@@ -130,6 +130,18 @@ class SearchControl extends React.Component {
     dispatch(zoomToIsochrones(controlindex))
   }
 
+  handleShow = () => {
+    const { dispatch, controlindex } = this.props
+    dispatch(toggleIsochrones(controlindex))
+  }
+
+  handleDownload = () => {
+
+    const { dispatch, controlindex } = this.props
+    dispatch(downloadIsochrones(controlindex))
+
+  }
+
   render() {
     const {
       isFetching,
@@ -184,6 +196,22 @@ class SearchControl extends React.Component {
               }}
             />
           </div>
+          {isochronesResults && isochronesResults.length > 0 && (
+            <Popup
+              trigger={
+                <Button
+                  circular
+                  size="mini"
+                  icon="cloud download"
+                  style={{ float: 'right' }}
+                  onClick={this.handleDownload}
+                  className="pr3"
+                />
+              }
+              content="Download polygons"
+              size="mini"
+            />
+          )}
           {isochronesResults && isochronesResults.length > 0 && (
             <Popup
               trigger={
