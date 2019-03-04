@@ -38,6 +38,13 @@ const hereHybridGreyDay = HereTileLayer.here({
   scheme: 'hybrid.grey.day'
 })
 
+const hereTruck = HereTileLayer.here({
+  appId: 'jKco7gLGf0WWlvS5n2fl',
+  appCode: 'HQnCztY23zh2xiTPCFiTMA',
+  scheme: 'normal.day',
+  resource2: 'trucktile'
+})
+
 const markersLayer = L.layerGroup()
 
 const isochronesLayer = L.layerGroup()
@@ -70,7 +77,8 @@ class Map extends React.Component {
 
     const baseMaps = {
       'HERE reduced.day': hereReducedDay,
-      'HERE hybrid.grey.day': hereHybridGreyDay
+      'HERE hybrid.grey.day': hereHybridGreyDay,
+      'HERE fleet': hereTruck
     }
 
     L.control.layers(baseMaps).addTo(this.map)

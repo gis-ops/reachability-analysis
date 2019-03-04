@@ -18,6 +18,10 @@ HereTileLayer.HERE = L.TileLayer.extend({
     // The "map resource", as documented in the HERE API.
     resource: 'maptile',
 
+    // 🍂option resource: String = 'maptile'
+    // The "map resource", as documented in the HERE API.
+    resource2: 'maptile',
+
     // 🍂option mapId: String = 'newest'
     // Version of the map tiles to be used, or a hash of an unique map
     mapId: 'newest',
@@ -52,7 +56,7 @@ HereTileLayer.HERE = L.TileLayer.extend({
     //    &{param}={value}
 
     var path =
-      '/{resource}/2.1/{resource}/{mapId}/{scheme}/{z}/{x}/{y}/{tileResolution}/{format}?app_id={appId}&app_code={appCode}'
+      '/{resource}/2.1/{resource2}/{mapId}/{scheme}/{z}/{x}/{y}/{tileResolution}/{format}?app_id={appId}&app_code={appCode}&congestion'
     var attributionPath =
       '/maptile/2.1/copyright/{mapId}?app_id={appId}&app_code={appCode}'
 
